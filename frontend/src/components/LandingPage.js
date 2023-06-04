@@ -8,7 +8,6 @@ const LandingPage = () => {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    background: 'linear-gradient(to right, #004d7a, #00c6fb)',
     fontFamily: 'Roboto, sans-serif',
   };
 
@@ -19,7 +18,7 @@ const LandingPage = () => {
   const textStyles = {
     fontSize: '32px',
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#black',
     marginBottom: '20px',
   };
 
