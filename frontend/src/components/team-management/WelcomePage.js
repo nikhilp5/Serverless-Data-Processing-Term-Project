@@ -7,7 +7,7 @@ function WelcomePage() {
         <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" minHeight="100vh">
             <Box mb={2}>
                 <Typography variant="h6" align="center" gutterBottom>
-                    Let's create a team to Play!
+                    Let's create a team to Play, lets goooo!
                 </Typography>
             </Box>
             <Link to="/teamOperations">
