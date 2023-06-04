@@ -6,8 +6,8 @@ function WelcomePage() {
     return (
         <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" minHeight="100vh">
             <Box mb={2}>
-                <Typography variant="h5" align="center" gutterBottom>
-                    Instructions: This game requires you to be part of a team
+                <Typography variant="h6" align="center" gutterBottom>
+                    Let's create a team to Play!
                 </Typography>
             </Box>
             <Link to="/teamOperations">
