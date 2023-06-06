@@ -3,6 +3,7 @@ import "../App.css";
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
+import ProfilePage from "./ProfilePage";
 
 const config = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -38,15 +39,7 @@ const SignIn = () => {
     <div className="SignIn">
     <h1 align="center">Sign in </h1>
       {isSignedIn ? (
-        <p>
-          <p>You are signed in</p>
-          <h1>Welcome {firebase.auth().currentUser.displayName}</h1>
-          <img
-            alt="profile picture"
-            src={firebase.auth().currentUser.photoURL}
-          />
-          <button onClick={() => firebase.auth().signOut()}>Sign out!</button>
-        </p>
+        <ProfilePage></ProfilePage>
       ) : (
         <StyledFirebaseAuth
           uiConfig={uiConfig}
