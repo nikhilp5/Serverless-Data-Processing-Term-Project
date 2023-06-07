@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import "../App.css";
-import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import ProfilePage from "./ProfilePage";
+import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
+import ProfilePage from "../profile-management/ProfilePage";
+import SecurityForm from "./SecurityForm";
+import { Typography } from "@mui/material";
 
 const config = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -24,31 +25,35 @@ const uiConfig = {
   },
 };
 
-
 const SignIn = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
-  
+
   useEffect(() => {
-    const unregisterAuthObserver = firebase.auth().onAuthStateChanged(user => {
-      setIsSignedIn(!!user);
-    });
+    const unregisterAuthObserver = firebase
+      .auth()
+      .onAuthStateChanged((user) => {
+        setIsSignedIn(!!user);
+      });
     return () => unregisterAuthObserver();
   }, []);
 
   return (
     <div className="SignIn">
-    <h1 align="center">Sign in </h1>
       {isSignedIn ? (
-        <ProfilePage></ProfilePage>
+        <SecurityForm></SecurityForm>
       ) : (
-        <StyledFirebaseAuth
-          uiConfig={uiConfig}
-          firebaseAuth={firebase.auth()}
-        />
+        <div>
+          <Typography variant="h3" component="h3" align="center">
+            Sign In
+          </Typography>
+          <StyledFirebaseAuth
+            uiConfig={uiConfig}
+            firebaseAuth={firebase.auth()}
+          />
+        </div>
       )}
     </div>
   );
-}
-
+};
 
 export default SignIn;
