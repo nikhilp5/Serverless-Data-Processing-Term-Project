@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
-import ProfilePage from "../profile-management/ProfilePage";
+import Profile from "../profile-management/Profile";
 import SecurityForm from "./SecurityForm";
 import { Typography } from "@mui/material";
 
