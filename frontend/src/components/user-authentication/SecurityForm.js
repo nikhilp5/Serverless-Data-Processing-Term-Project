@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { TextField, Grid, Button, Typography } from "@mui/material";
 import firebase from "firebase/compat/app";
 import AWS from "aws-sdk";
+import { useNavigate } from "react-router-dom";
 
 const AWS_CONFIG = {
   "region": process.env.REACT_APP_AWS_REGION,
@@ -15,6 +16,9 @@ AWS.config.update(AWS_CONFIG);
 const dynamodb = new AWS.DynamoDB.DocumentClient();;
 
 const SecurityForm = () => {
+
+  const navigate = useNavigate();
+
   const securityQuestions = [
     "What is your grandfather's first name?",
     "Which is your favourite subject?",
@@ -22,6 +26,7 @@ const SecurityForm = () => {
   ];
 
   const [answers, setAnswers] = useState(securityQuestions.map(() => ""));
+  const [error, setError] = useState("");
 
   const handleChange = (event, index) => {
     const { value } = event.target;
@@ -32,25 +37,64 @@ const SecurityForm = () => {
     });
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
+  const fetchUserAnswers = (userId) => {
     const params = {
       TableName: 'security_questions',
-      Item: {
-        userId: firebase.auth().currentUser.uid,
-        securityAnswers: answers,
+      Key: {
+        userId: userId,
       },
     };
-
-    dynamodb.put(params, (err) => {
-      if (err) {
-        console.error('Error saving to DynamoDB:', err);
-      } else {
-        console.log('Security answers saved to DynamoDB successfully');
-      }
+  
+    return new Promise((resolve, reject) => {
+      dynamodb.get(params, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          const item = data.Item;
+          if (item && item.securityAnswers) {
+            resolve(item.securityAnswers);
+          } else {
+            reject(new Error('Security answers not found'));
+          }
+        }
+      });
     });
   };
+  
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+  
+    const userId = firebase.auth().currentUser.uid;
+  
+    try {
+      const existingAnswers = await fetchUserAnswers(userId);
+  
+      if (existingAnswers.every((answer, index) => answer === answers[index])) {
+        navigate("/welcome");
+      } else {
+        setError('Security answers do not match.');
+      }
+    } catch (error) {
+      const params = {
+        TableName: 'security_questions',
+        Item: {
+          userId: userId,
+          securityAnswers: answers,
+        },
+      };
+  
+      dynamodb.put(params, (err) => {
+        if (err) {
+          console.error('Error saving to DynamoDB:', err);
+        } else {
+          console.log('Security answers saved to DynamoDB successfully');
+          navigate("/welcome");
+        }
+      });
+    }
+  };
+  
 
   return (
     <div>
@@ -89,6 +133,13 @@ const SecurityForm = () => {
               Submit
             </Button>
           </Grid>
+          {error && (
+            <Grid item xs={12}>
+              <Typography variant="body1" color="error">
+                {error}
+              </Typography>
+            </Grid>
+          )}
         </Grid>
       </form>
     </div>

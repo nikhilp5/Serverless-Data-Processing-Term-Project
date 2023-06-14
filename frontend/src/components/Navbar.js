@@ -1,10 +1,23 @@
 import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Drawer } from '@mui/material';
 import { AccountCircle, Notifications } from '@mui/icons-material';
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
+import { useNavigate } from "react-router-dom";
+
+const config = {
+    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+    authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  };
+
+firebase.initializeApp(config);
+
 
 function Navbar() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+    const navigate = useNavigate();
 
     const handleMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
@@ -22,6 +35,17 @@ function Navbar() {
         setIsDrawerOpen(false);
     };
 
+    const handleLogout = () => {
+        setAnchorEl(null);
+        firebase.auth().signOut()
+        navigate("/SignIn")
+    };
+
+    const handleProfile = () => {
+        setAnchorEl(null);
+        navigate("Profile")
+    };
+
     return (
         <>
             <AppBar position="static" style={{ background: 'green' }}>
@@ -36,8 +60,8 @@ function Navbar() {
                         <AccountCircle />
                     </IconButton>
                     <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-                        <MenuItem onClick={handleMenuClose}>My Profile</MenuItem>
-                        <MenuItem onClick={handleMenuClose}>Log Out</MenuItem>
+                        <MenuItem onClick={handleProfile}>My Profile</MenuItem>
+                        <MenuItem onClick={handleLogout}>Log Out</MenuItem>
                     </Menu>
                 </Toolbar>
             </AppBar>

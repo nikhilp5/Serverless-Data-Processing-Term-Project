@@ -14,7 +14,7 @@ const Routes = () => {
             <Route path="/welcome" element={<WelcomePage />} />
             <Route path="/TeamOperations" element={<TeamOperations />} />
             <Route path="/SecurityForm" element={<SecurityForm/>} />
-            <Route path="/ProfilePage" element={<Profile/>} />
+            <Route path="/Profile" element={<Profile/>} />
         </Rt>
     )
 }
