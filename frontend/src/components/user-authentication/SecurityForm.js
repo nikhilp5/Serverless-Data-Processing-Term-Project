@@ -1,6 +1,18 @@
 import React, { useState } from "react";
 import { TextField, Grid, Button, Typography } from "@mui/material";
 import firebase from "firebase/compat/app";
+import AWS from "aws-sdk";
+
+const AWS_CONFIG = {
+  "region": process.env.REACT_APP_AWS_REGION,
+  "accessKeyId": process.env.REACT_APP_AWS_ACCESS_KEY,
+  "secretAccessKey": process.env.REACT_APP_AWS_SECRET_KEY,
+  "sessionToken": process.env.REACT_APP_AWS_SESSION_TOKEN,
+};
+
+AWS.config.update(AWS_CONFIG);
+
+const dynamodb = new AWS.DynamoDB.DocumentClient();;
 
 const SecurityForm = () => {
   const securityQuestions = [
@@ -20,10 +32,24 @@ const SecurityForm = () => {
     });
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // Do something with the answers (e.g., validate, send to server, etc.)
-    console.log(answers);
+
+    const params = {
+      TableName: 'security_questions',
+      Item: {
+        userId: firebase.auth().currentUser.uid,
+        securityAnswers: answers,
+      },
+    };
+
+    dynamodb.put(params, (err) => {
+      if (err) {
+        console.error('Error saving to DynamoDB:', err);
+      } else {
+        console.log('Security answers saved to DynamoDB successfully');
+      }
+    });
   };
 
   return (
