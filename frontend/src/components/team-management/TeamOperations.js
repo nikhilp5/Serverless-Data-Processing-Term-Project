@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, Typography, TextField, Button, List, ListItem, ListItemText, Card, CardContent } from '@mui/material';
+import { Box, Grid, Typography, TextField, Button, Card, CardContent } from '@mui/material';
 import axios from 'axios';
 
 function TeamOperations() {
