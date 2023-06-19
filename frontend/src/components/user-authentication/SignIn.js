@@ -1,17 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
-import Profile from "../profile-management/Profile";
 import SecurityForm from "./SecurityForm";
 import { Typography } from "@mui/material";
-
-const config = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-};
-
-firebase.initializeApp(config);
+import { AuthContext } from '../../services/AuthContext';
 
 const uiConfig = {
   signInFlow: "popup",
@@ -26,20 +19,11 @@ const uiConfig = {
 };
 
 const SignIn = () => {
-  const [isSignedIn, setIsSignedIn] = useState(false);
-
-  useEffect(() => {
-    const unregisterAuthObserver = firebase
-      .auth()
-      .onAuthStateChanged((user) => {
-        setIsSignedIn(!!user);
-      });
-    return () => unregisterAuthObserver();
-  }, []);
+  const { currentUser } = useContext(AuthContext);
 
   return (
     <div className="SignIn">
-      {isSignedIn ? (
+      {currentUser ? (
         <SecurityForm></SecurityForm>
       ) : (
         <div>
