@@ -98,7 +98,6 @@ const SecurityForm = () => {
 
   return (
     <div>
-      <button onClick={() => firebase.auth().signOut()}>Sign out</button>
       <Typography variant="h3" component="h3" align="center">
         Security Questions
       </Typography>
