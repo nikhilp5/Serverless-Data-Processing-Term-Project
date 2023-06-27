@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Grid, Typography, TextField, Button, Card, CardContent } from '@mui/material';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+import firebase from "firebase/compat/app";
 
 function TeamOperations() {
     const [teamName, setTeamName] = useState('');
@@ -65,26 +66,34 @@ function TeamOperations() {
                     </Grid>
                 </Grid>
             <Box mt={5}>
-            <Card variant="elevation" align="center" gutterBottom>
-                <CardContent>
-                    <Typography variant="h6" gutterBottom> userId </Typography>
-                    <Typography variant="overline" color="textSecondary">
-                        Admin
-                    </Typography>
-                    <Grid mt={2} container alignItems="center">
+            <Box sx={{ bgcolor: '', p: 1 }}>
+                <Grid container justifyContent="center" spacing={2}>
+                    <Grid item>
+                        <Card style={{backgroundColor: "lightgreen"}} variant="elevation" align="center" gutterBottom>
+                        <CardContent>
+                            <Typography variant="h6" gutterBottom> 
+                            {firebase.auth().currentUser.email} 
+                            </Typography>
+                            <Typography variant="overline" color="textSecondary">
+                                Admin
+                            </Typography>
+                            <Grid mt={2} container alignItems="center">
+                            </Grid>
+                        </CardContent>
+                        </Card>
                     </Grid>
-                </CardContent>
-                </Card>
+                </Grid>
+            </Box>
             <Typography mt={4} variant="h6" align="center" gutterBottom> Team Members </Typography>
             <Grid container justifyContent="center" spacing={2}>
-                {/* The first user in the array is the current user itself.  */}
+                {/* If the user is current user, then ignore!  */}
                 {teamMembers.map((member, index) => {
-                if (index === 0) {
+                if (member.userId === firebase.auth().currentUser.uid) {
                     return null; // Skip the first element
                 }
                 return (
                     <Grid item key={index}>
-                        <Card variant="outlined">
+                        <Card style={{backgroundColor: "lightgreen"}} variant="outlined">
                             <CardContent>
                                 <Typography variant="subtitle1" gutterBottom> {member.userId} </Typography>
                                 <Typography variant="body2" color="textSecondary">

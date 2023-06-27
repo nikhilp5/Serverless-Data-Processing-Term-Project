@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import firebase from "firebase/compat/app";
 
-function WelcomePage() {
+function TeamWelcomePage() {
     console.log("hrereeeeeeeeeeeeeeeeeeeeeee", firebase.auth().currentUser.uid)
     const navigate = useNavigate();
 
@@ -68,4 +68,4 @@ function WelcomePage() {
     );
 }
 
-export default WelcomePage;
+export default TeamWelcomePage;
