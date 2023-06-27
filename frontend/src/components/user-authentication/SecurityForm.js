@@ -13,7 +13,7 @@ const AWS_CONFIG = {
 
 AWS.config.update(AWS_CONFIG);
 
-const dynamodb = new AWS.DynamoDB.DocumentClient();;
+const lambda = new AWS.Lambda({ region: process.env.REACT_APP_AWS_REGION });
 
 const SecurityForm = () => {
 
@@ -25,7 +25,7 @@ const SecurityForm = () => {
     "Where was your mother born?",
   ];
 
-  const [answers, setAnswers] = useState(securityQuestions.map(() => ""));
+  const [securityAnswers, setAnswers] = useState(securityQuestions.map(() => ""));
   const [error, setError] = useState("");
 
   const handleChange = (event, index) => {
@@ -36,63 +36,38 @@ const SecurityForm = () => {
       return updatedAnswers;
     });
   };
-
-  const fetchUserAnswers = (userId) => {
+  
+  const invokesecondFactorAuthLambda = async (userId) => {
     const params = {
-      TableName: 'security_questions',
-      Key: {
-        userId: userId,
-      },
+      FunctionName: 'secondFactorAuthentication',
+      Payload: JSON.stringify({ userId, securityAnswers: securityAnswers }),
     };
   
-    return new Promise((resolve, reject) => {
-      dynamodb.get(params, (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          const item = data.Item;
-          if (item && item.securityAnswers) {
-            resolve(item.securityAnswers);
-          } else {
-            reject(new Error('Security answers not found'));
-          }
-        }
-      });
-    });
+    try {
+      const response = await lambda.invoke(params).promise();
+      const result = JSON.parse(response.Payload);
+  
+      if (result.statusCode === 200) {
+        navigate("/welcome");
+      } else if (result.statusCode === 400){
+          setError('Security answers do not match.');
+        console.error('Lambda function execution failed');
+        console.error(result);
+      } else {
+        setError('Some error occured. Please try again');
+      }
+    } catch (error) {
+      console.error('Error invoking Lambda function:', error);
+      setError('Some error occured. Please try again');
+    }
   };
   
 
   const handleSubmit = async (event) => {
     event.preventDefault();
   
-    const userId = firebase.auth().currentUser.uid;
-  
-    try {
-      const existingAnswers = await fetchUserAnswers(userId);
-  
-      if (existingAnswers.every((answer, index) => answer === answers[index])) {
-        navigate("/welcome");
-      } else {
-        setError('Security answers do not match.');
-      }
-    } catch (error) {
-      const params = {
-        TableName: 'security_questions',
-        Item: {
-          userId: userId,
-          securityAnswers: answers,
-        },
-      };
-  
-      dynamodb.put(params, (err) => {
-        if (err) {
-          console.error('Error saving to DynamoDB:', err);
-        } else {
-          console.log('Security answers saved to DynamoDB successfully');
-          navigate("/welcome");
-        }
-      });
-    }
+    const userId = firebase.auth().currentUser.uid;  
+    invokesecondFactorAuthLambda(userId);
   };
   
 
@@ -118,7 +93,7 @@ const SecurityForm = () => {
               <Grid item xs={12} md={6}>
                 <TextField
                   label={`Answer ${index + 1}`}
-                  value={answers[index]}
+                  value={securityAnswers[index]}
                   onChange={(event) => handleChange(event, index)}
                   variant="outlined"
                   fullWidth
