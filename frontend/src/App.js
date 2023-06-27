@@ -1,4 +1,4 @@
-import Navbar from './components/Navbar';
+import Navbar from './components/miscelleneous/Navbar';
 import Routes from './services/Routes'
 import { AuthProvider } from './services/AuthContext';
 
