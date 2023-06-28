@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Grid, Typography, TextField, Button, Card, CardContent } from '@mui/material';
 import axios from 'axios';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import firebase from "firebase/compat/app";
 
 function TeamOperations() {
 
     console.log(firebase.auth().currentUser.email, "heeasree")
+    const navigate = useNavigate();
 
     const [teamName, setTeamName] = useState('');
     const [teamMembers, setTeamMembers] = useState([]);
@@ -17,10 +18,6 @@ function TeamOperations() {
 
     const inviteToTeam = () => {
         // Logic to invite others to the team
-    };
-
-    const leaveTeam = () => {
-        // Logic to leave the team
     };
 
     const viewTeamStatistics = () => {
@@ -40,11 +37,19 @@ function TeamOperations() {
             if (action === 'updateRole') {
                 console.log('Role updated successfully:', response.data);
                 alert("Role updated successfully!");
-            } else if (action === 'kickUser') {
+            } 
+            else if (action === 'kickUser') {
+                if (userId === firebase.auth().currentUser.uid) {
+                    alert("You kicked yourself out!");
+                    navigate('/welcomeTeamPage')
+                } 
+                else {
+                    alert("User kicked successfully!")
+                }
                 console.log('User kicked successfully:', response.data);
                 alert("User kicked successfully!");
-            }
-            //window.location.reload();
+            } 
+
         } catch (error) {
             console.error('Failed to update user:', error);
         }
@@ -91,6 +96,7 @@ function TeamOperations() {
                     </Grid>
                 </Grid>
             <Box mt={5}>
+            <Typography mt={4} variant="h6" align="center"> You </Typography>
             <Box sx={{ bgcolor: '', p: 1 }}>
                 <Grid container justifyContent="center" spacing={2}>
                     <Grid item>
@@ -114,7 +120,7 @@ function TeamOperations() {
                 {/* If the user is current user, then ignore!  */}
                 {teamMembers.map((member, index) => {
                 if (member.userId === firebase.auth().currentUser.uid) {
-                    return null; // Skip the first element
+                    return null; 
                 }
                 return (
                     <Grid item key={index}>
@@ -155,7 +161,7 @@ function TeamOperations() {
                 <Button variant="contained" color='warning' onClick={viewTeamStatistics}>
                     View Team Statistics
                 </Button>
-                <Button variant="contained" color='error' onClick={leaveTeam}>
+                <Button variant="contained" color='error' onClick={() => handleUpdate(firebase.auth().currentUser.uid, 'kickUser')}>
                     Leave Team
                 </Button>
             </Box>

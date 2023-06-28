@@ -5,7 +5,7 @@ import axios from 'axios';
 import firebase from "firebase/compat/app";
 
 function TeamWelcomePage() {
-    console.log("hrereseesfss", firebase.auth().currentUser.uid)
+    console.log("hrereseesfs", firebase.auth().currentUser.uid)
     const userId = firebase.auth().currentUser.uid
     const navigate = useNavigate();
     const [teamName, setTeamName] = useState('');
@@ -64,7 +64,19 @@ function TeamWelcomePage() {
 
     return (
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-
+            {/* Create a new team code */}
+            <Box width="50%">
+            <Box mb={2}>
+            <Typography variant="h6" align="center" gutterBottom>
+                Let's create a team to play, let's go!
+            </Typography>
+            </Box>
+            <Box textAlign="center">
+            <Button color="success" variant="contained" onClick={createTeam} disabled={!!newTeamId}>
+                Create Team
+            </Button>
+            </Box>
+        </Box>
         <Box width="50%">
             <Box mb={2}>
             <Typography variant="h6" align="center" gutterBottom>
@@ -81,19 +93,7 @@ function TeamWelcomePage() {
             </Box>
         </Box>
 
-            {/* Create a new team code */}
-        <Box width="50%">
-            <Box mb={2}>
-            <Typography variant="h6" align="center" gutterBottom>
-                Let's create a team to play, let's go!
-            </Typography>
-            </Box>
-            <Box textAlign="center">
-            <Button color="success" variant="contained" onClick={createTeam}>
-                Create Team
-            </Button>
-            </Box>
-        </Box>
+        
         </Box>
     );
 }
