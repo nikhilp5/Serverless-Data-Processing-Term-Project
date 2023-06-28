@@ -5,6 +5,9 @@ import { useLocation } from 'react-router-dom';
 import firebase from "firebase/compat/app";
 
 function TeamOperations() {
+
+    console.log(firebase.auth().currentUser.email, "heeasree")
+
     const [teamName, setTeamName] = useState('');
     const [teamMembers, setTeamMembers] = useState([]);
 
@@ -26,12 +29,11 @@ function TeamOperations() {
 
     useEffect(() => {
 
-        console.log("This is the teamId I get from before screen", teamId)
+        console.log("This is the teamId I gettt from beforee screen", teamId)
         const fetchTeamMembers = async () => {
             try {
-                const response = await axios.get('https://w0rtfnxmzh.execute-api.us-east-1.amazonaws.com/test/team', {
-                    teamId: teamId
-                });
+                const response = await axios.get(`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team/${teamId}`)
+                console.log("This is neww response", response)
                 setTeamMembers(response.data.body.Items);
 
             } catch (error) {
@@ -42,13 +44,13 @@ function TeamOperations() {
         fetchTeamMembers();
 
         const generateTeamName = async () => {
-            try {
-                const response = await axios.get('https://api.chagpt.com/team-name');
-                console.log(response)
-                setTeamName(response.data.teamName);
-            } catch (error) {
-                console.error('Failed to generate team name:', error);
-            }
+            // try {
+            //     const response = await axios.get('https://api.chagpt.com/team-name');
+            //     console.log(response)
+            //     setTeamName(response.data.teamName);
+            // } catch (error) {
+            //     console.error('Failed to generate team name:', error);
+            // }
         };
 
         generateTeamName();
@@ -69,9 +71,9 @@ function TeamOperations() {
             <Box sx={{ bgcolor: '', p: 1 }}>
                 <Grid container justifyContent="center" spacing={2}>
                     <Grid item>
-                        <Card style={{backgroundColor: "lightgreen"}} variant="elevation" align="center" gutterBottom>
+                        <Card style={{backgroundColor: "lightgreen"}} variant="elevation" align="center">
                         <CardContent>
-                            <Typography variant="h6" gutterBottom> 
+                            <Typography variant="h6"> 
                             {firebase.auth().currentUser.email} 
                             </Typography>
                             <Typography variant="overline" color="textSecondary">
@@ -84,7 +86,7 @@ function TeamOperations() {
                     </Grid>
                 </Grid>
             </Box>
-            <Typography mt={4} variant="h6" align="center" gutterBottom> Team Members </Typography>
+            <Typography mt={4} variant="h6" align="center"> Team Members </Typography>
             <Grid container justifyContent="center" spacing={2}>
                 {/* If the user is current user, then ignore!  */}
                 {teamMembers.map((member, index) => {
@@ -95,7 +97,7 @@ function TeamOperations() {
                     <Grid item key={index}>
                         <Card style={{backgroundColor: "lightgreen"}} variant="outlined">
                             <CardContent>
-                                <Typography variant="subtitle1" gutterBottom> {member.userId} </Typography>
+                                <Typography variant="subtitle1"> {member.userId} </Typography>
                                 <Typography variant="body2" color="textSecondary">
                                     {member.role}
                                 </Typography>
