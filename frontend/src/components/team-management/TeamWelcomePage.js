@@ -5,7 +5,7 @@ import axios from 'axios';
 import firebase from "firebase/compat/app";
 
 function TeamWelcomePage() {
-    console.log("hrereseesfssf", firebase.auth().currentUser.uid)
+    console.log("hrereseesfss", firebase.auth().currentUser.uid)
     const userId = firebase.auth().currentUser.uid
     const navigate = useNavigate();
     const [teamName, setTeamName] = useState('');

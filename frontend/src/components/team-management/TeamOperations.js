@@ -24,17 +24,40 @@ function TeamOperations() {
     };
 
     const viewTeamStatistics = () => {
-        // Logic to view team statistics
+        // Logic to view team stattistics
+    };
+
+    const handleUpdate = async (userId, action) => {
+        try {
+            const response = await axios.put(
+                `https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team`,
+                {
+                    teamId: teamId,
+                    userId: userId,
+                    action: action, // Set the action dynamically based on the button clickedd
+                }
+            );
+            if (action === 'updateRole') {
+                console.log('Role updated successfully:', response.data);
+                alert("Role updated successfully!");
+            } else if (action === 'kickUser') {
+                console.log('User kicked successfully:', response.data);
+                alert("User kicked successfully!");
+            }
+            //window.location.reload();
+        } catch (error) {
+            console.error('Failed to update user:', error);
+        }
     };
 
     useEffect(() => {
 
-        console.log("This is the teamId I gettt from beforee screen", teamId)
+        console.log("This is the teamId I get from before screennn", teamId)
         const fetchTeamMembers = async () => {
             try {
-                const response = await axios.get(`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team/${teamId}`)
-                console.log("This is neww response", response)
-                setTeamMembers(response.data.body.Items);
+                const response = await axios.get(`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team?teamId=${teamId}`)
+                console.log("This is new response", response)
+                setTeamMembers(response.data.teamMembers);
 
             } catch (error) {
                 console.error('Failed to fetch team members:', error);
@@ -99,22 +122,22 @@ function TeamOperations() {
                             <CardContent>
                                 <Typography variant="subtitle1"> {member.userId} </Typography>
                                 <Typography variant="body2" color="textSecondary">
-                                    {member.role}
+                                    {member.userRole}
                                 </Typography>
                                 <Grid mt={2} container alignItems="center">
                                     <Grid item>
-                                        {member.role.toLowerCase() === 'admin' ? (
-                                            <Button color="secondary">
+                                        {member.userRole.toLowerCase() === 'admin' ? (
+                                            <Button color="secondary" onClick={() => handleUpdate(member.userId, 'updateRole')}>
                                                 Demote to Member
                                             </Button>
                                         ) : (
-                                            <Button color="primary">
+                                            <Button color="primary" onClick={() => handleUpdate(member.userId, 'updateRole')}>
                                                 Promote to Admin
                                             </Button>
                                         )}
                                     </Grid>
                                     <Grid item>
-                                        <Button color='error'>Kick</Button>
+                                        <Button color='error' onClick={() => handleUpdate(member.userId, 'kickUser')}>Kick</Button>
                                     </Grid>
                                 </Grid>
                             </CardContent>
