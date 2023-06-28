@@ -3,6 +3,7 @@ import TeamOperations from '../components/team-management/TeamOperations';
 import SignIn from '../components/user-authentication/SignIn';
 import SecurityForm from '../components/user-authentication/SecurityForm';
 import Profile from '../components/profile-management/Profile';
+import UserStats from '../components/profile-management/UserStats';
 import LandingPage from '../components/miscelleneous/LandingPage';
 import TeamWelcomePage from '../components/team-management/TeamWelcomePage';
 
@@ -15,6 +16,7 @@ const Routes = () => {
             <Route path="/TeamOperations" element={<TeamOperations />} />
             <Route path="/SecurityForm" element={<SecurityForm/>} />
             <Route path="/Profile" element={<Profile/>} />
+            <Route path="/UserStats" element={<UserStats/>} />
         </Rt>
     )
 }

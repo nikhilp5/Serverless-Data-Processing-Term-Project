@@ -1,12 +1,16 @@
-import React, { useState } from "react";
-import { Grid, Typography, Avatar, TextField, Button } from "@mui/material";
-import firebase from "firebase/compat/app";
+import React, { useState, useContext } from "react";
+import { Grid, Typography, Avatar, TextField, Button, Input } from "@mui/material";
+import { useNavigate, Navigate } from "react-router-dom";
+import { AuthContext } from "../../services/AuthContext";
+import SignIn from "../user-authentication/SignIn";
 
 
 const Profile = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [profilePicture, setProfilePicture] = useState("");
+  const { currentUser } = useContext(AuthContext);
 
   const handleNameChange = (e) => {
     setName(e.target.value);
@@ -32,7 +36,12 @@ const Profile = () => {
   const handleSaveChanges = () => {
   };
 
+  const handleViewStats = () => {
+    navigate('/UserStats')
+  };
+
   return (
+    currentUser ?
     <Grid container spacing={2} justifyContent="center" align="center" >
       <Grid item xs={12}>
         <Typography variant="h4">Profile</Typography>
@@ -59,7 +68,7 @@ const Profile = () => {
         </label>
       </Grid>
       <Grid item xs={12}>
-        <TextField label="Email" value={firebase.auth().currentUser?.email || ''} disabled/>
+        <TextField label="Email" value={currentUser.email || ''} disabled/>
       </Grid>
       <Grid item xs={12}>
         <TextField label="Name" value={name} onChange={handleNameChange} />
@@ -77,7 +86,7 @@ const Profile = () => {
         </Button>
       </Grid>
       <Grid item xs={12}>
-        <Button variant="contained" color="primary" onClick={handleSaveChanges}>
+        <Button variant="contained" color="primary" onClick={handleViewStats}>
           View statistics
         </Button>
       </Grid>
@@ -92,6 +101,8 @@ const Profile = () => {
         </Button>
       </Grid>
     </Grid>
+    :
+    <Navigate to="/SignIn" />
   );
 };
 
