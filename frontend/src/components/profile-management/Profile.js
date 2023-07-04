@@ -47,12 +47,9 @@ const Profile = () => {
 
         setName(profileData.name);
         setContactNumber(profileData.contactNumber);
-        // if (profileData.image === '') {
-          console.log('defaultimage-----',profileData.image);
+          console.log('image-----',profileData.image);
           setProfilePicture(profileData.image);
-        // } else {
-        //   setProfilePicture(profileData.image);
-        // }
+          setProfilePictureFile(null);
         console.log('-------lambda-200----------');
       } else {
         console.error("Error fetching profile data");
@@ -169,6 +166,18 @@ const Profile = () => {
             Upload Profile Picture
           </Button>
         </label>
+      </Grid>
+      <Grid item xs={12}> 
+        {profilePictureFile && 
+        <div>
+        <h6>New profile picture selected</h6>
+        <img
+          src={URL.createObjectURL(profilePictureFile)}
+          alt="Profile"
+          style={{ maxHeight: "100px", width: "auto" }}
+        />
+        </div>
+        }
       </Grid>
       <Grid item xs={12}>
         <TextField label="Email" value={currentUser.email || ''} disabled/>
