@@ -1,13 +1,9 @@
 const AWS = require('aws-sdk');
+const s3 = new AWS.S3();
 const dynamodb = new AWS.DynamoDB();
 
 exports.handler = async (event) => {
-    console.log(event);
-  // const { userId, , name, contactNumber } = JSON.parse(event.body);
-  const userId = event.userId;
-  const image = event.image;
-  const name = event.name;
-  const contactNumber = event.contactNumber;
+  const { userId, image, name, contactNumber } = event;
 
   const getItemParams = {
     TableName: 'profile_info',
@@ -27,14 +23,12 @@ exports.handler = async (event) => {
         Key: {
           userId: { S: userId },
         },
-        UpdateExpression: 'SET #img = :img, #name = :name, #contact = :contact',
+        UpdateExpression: 'SET #name = :name, #contact = :contact',
         ExpressionAttributeNames: {
-          '#img': 'image',
           '#name': 'name',
           '#contact': 'contactNumber',
         },
         ExpressionAttributeValues: {
-          ':img': { S: image },
           ':name': { S: name },
           ':contact': { S: contactNumber },
         },
@@ -47,7 +41,6 @@ exports.handler = async (event) => {
         TableName: 'profile_info',
         Item: {
           userId: { S: userId },
-          image: { S: image },
           name: { S: name },
           contactNumber: { S: contactNumber },
         },
@@ -55,6 +48,15 @@ exports.handler = async (event) => {
 
       await dynamodb.putItem(putItemParams).promise();
     }
+
+    // Upload the image to S3
+    const uploadParams = {
+      Bucket: 'serverless-profile-images',
+      Key: `${userId}.jpg`,
+      Body: image,
+    };
+
+    await s3.upload(uploadParams).promise();
 
     return {
       statusCode: 200,
