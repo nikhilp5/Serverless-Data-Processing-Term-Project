@@ -2,15 +2,28 @@ import React, { useState, useContext } from "react";
 import { Grid, Typography, Avatar, TextField, Button, Input } from "@mui/material";
 import { useNavigate, Navigate } from "react-router-dom";
 import { AuthContext } from "../../services/AuthContext";
-import SignIn from "../user-authentication/SignIn";
+import AWS from "aws-sdk";
+
+
+const AWS_CONFIG = {
+  "region": process.env.REACT_APP_AWS_REGION,
+  "accessKeyId": process.env.REACT_APP_AWS_ACCESS_KEY,
+  "secretAccessKey": process.env.REACT_APP_AWS_SECRET_KEY,
+  "sessionToken": process.env.REACT_APP_AWS_SESSION_TOKEN,
+};
+
+AWS.config.update(AWS_CONFIG);
+
+const lambda = new AWS.Lambda({ region: process.env.REACT_APP_AWS_REGION });
 
 
 const Profile = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [contactNumber, setContactNumber] = useState("");
-  const [profilePicture, setProfilePicture] = useState("");
+  const [profilePicture, setProfilePicture] = useState(null);
   const { currentUser } = useContext(AuthContext);
+  const [profileUpdateResponse, setprofileUpdateResponse] = useState("");
 
   const handleNameChange = (e) => {
     setName(e.target.value);
@@ -22,18 +35,38 @@ const Profile = () => {
 
   const handleProfilePictureChange = (e) => {
     const file = e.target.files[0];
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      setProfilePicture(reader.result);
-    };
-
-    if (file) {
-      reader.readAsDataURL(file);
-    }
+    setProfilePicture(file);
   };
 
   const handleSaveChanges = () => {
+    const reader = new FileReader();
+
+    reader.onload = async (event) => {
+      try {
+        const imageBase64 = event.target.result.split(",")[1];
+        const params = {
+          FunctionName: "updateProfile",
+          Payload: JSON.stringify({ userId: currentUser.uid, name, contactNumber, image: imageBase64}),
+        };
+
+        const data = await lambda.invoke(params).promise();
+
+        if (data.StatusCode === 200) {
+          setprofileUpdateResponse('Profile successfully updated');
+        } else {
+          setprofileUpdateResponse('Error in updating profile');
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        setprofileUpdateResponse('Error in updating profile');
+      }
+    };
+
+    if (profilePicture) {
+      reader.readAsDataURL(profilePicture);
+    } else {
+
+    }
   };
 
   const handleViewStats = () => {
@@ -47,11 +80,11 @@ const Profile = () => {
         <Typography variant="h4">Profile</Typography>
       </Grid>
       <Grid item xs={12}> 
-        <Avatar
-          src={profilePicture}
+        {profilePicture && <img
+          src={URL.createObjectURL(profilePicture)}
           alt="Profile Picture"
-          sx={{ width: 200, height: 200 }}
-        />
+          style={{ maxHeight: "100px", width: "auto" }}
+        />}
       </Grid>
       <Grid item xs={12}>
         <input
@@ -84,6 +117,7 @@ const Profile = () => {
         <Button variant="contained" color="primary" onClick={handleSaveChanges}>
           Save Profile Changes
         </Button>
+        {profileUpdateResponse  && <h6>{profileUpdateResponse}</h6>}
       </Grid>
       <Grid item xs={12}>
         <Button variant="contained" color="primary" onClick={handleViewStats}>
@@ -102,7 +136,7 @@ const Profile = () => {
       </Grid>
     </Grid>
     :
-    <Navigate to="/SignIn" />
+      <div>Loading...</div>
   );
 };
 
