@@ -2,39 +2,49 @@ import { Box, Button, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import firebase from "firebase/compat/app";
+//import { AuthContext } from "../../services/AuthContext";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 function TeamWelcomePage() {
-    console.log("hrereseesfs", firebase.auth().currentUser.uid)
-    const userId = firebase.auth().currentUser.uid
+    //const { currentUser } = useContext(AuthContext);
     const navigate = useNavigate();
     const [teamName, setTeamName] = useState('');
     const [newTeamId, setNewTeamId] = useState('');
+    const [currentUserId, setCurrentUserId] = useState('');
 
     // Get Team By User ID
     useEffect(() => {
+
+        // get current user
+        const auth = getAuth()
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log(user.uid)
+                setCurrentUserId(user.uid)
+                // ...
+            } else {
+                alert('Sign In to play!')
+            }
+        })
+
+        console.log("This is ucrrent userrr", currentUserId)
         const getTeamDetails = async () => {
-          try {
-            const userId = firebase.auth().currentUser.uid;
-    
-            const response = await axios.post(
-              'https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team-by-user', {
-                userId: userId
-              })
-               
-            console.log("output teamID", response.data.body[0].teamId)
-            console.log("output Team name", response.data.body[0].teamName)
-            setNewTeamId(response.data.body[0].teamId)
-            setTeamName(response.data.body[0].teamName)
+          try {    
+            const response = await axios.get(`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team-by-user?userId=${currentUserId}`);
+            setNewTeamId(response.data[0].teamId)
+            setTeamName(response.data[0].teamName)
 
           } catch (error) {
             console.error(error.message);
             setTeamName('Error retrieving team name');
           }
         };
-    
-        getTeamDetails();
-      }, []);
+        
+        if(currentUserId) {
+            getTeamDetails()
+        }
+
+      }, [currentUserId]);
 
     // Team is created with the current user as admin
     const createTeam = async () => {
@@ -43,10 +53,9 @@ function TeamWelcomePage() {
             const response = await axios.post(
                 'https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team',
                 {
-                    userId: userId
+                    userId: currentUserId
                 }
             );
-            console.log('Team created: with ID', response.data.body.teamId);
             const newTeamId = response.data.body.teamId;
             setNewTeamId(newTeamId);   
             alert("team created successfully!")
@@ -56,9 +65,7 @@ function TeamWelcomePage() {
         }
     };    
 
-    console.log("This is the team Id that I wil send ->>>>>>>>>", newTeamId)
     const viewTeam = () => {
-        console.log("Id sent:::::::", newTeamId)
         navigate('/teamOperations', { state: { teamId: newTeamId } });
     };
 
@@ -92,8 +99,6 @@ function TeamWelcomePage() {
             </Button>
             </Box>
         </Box>
-
-        
         </Box>
     );
 }

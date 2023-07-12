@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Drawer } from '@mui/material';
 import { AccountCircle, Notifications } from '@mui/icons-material';
-import firebase from "firebase/compat/app";
-import "firebase/compat/auth";
+import axios from 'axios';
 import { useNavigate } from "react-router-dom";
-
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 function Navbar() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
+    const [notifications, setNotifications] = useState([]);
+    const [currentUserEmail, setCurrentUserEmail] = useState('');
     const navigate = useNavigate();
 
     const handleMenuOpen = (event) => {
@@ -20,8 +20,38 @@ function Navbar() {
         setAnchorEl(null);
     };
 
-    const handleNotificationClick = () => {
-        setIsDrawerOpen(true);
+    // get current user
+    useEffect(() => {
+        // get current user
+        const auth = getAuth();
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log(user.email)
+                setCurrentUserEmail(user.email)
+            } else {
+                alert('Sign In to play!')
+            }
+        });
+
+        return () => {
+            unsubscribe(); // Cleanup the subscription on unmount
+        };
+    }, []);
+
+    const handleNotificationClick = async () => {
+        try {
+            console.log("From Navbar, here is the", currentUserEmail)
+            // Hit the Axios GET endpoint to retrieve the list of notifications
+            const response = await axios.get(`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/teaminvites?userEmail=${currentUserEmail}`);
+            console.log("Heyyyyyyy", response)
+            const notificationsData = response.data;
+            console.log("getting this bro", notificationsData)
+            setNotifications(notificationsData); // Update the state with the notifications
+
+            setIsDrawerOpen(true);
+        } catch (error) {
+            console.error('Failed to retrieve notifications:', error);
+        }
     };
 
     const handleDrawerClose = () => {
@@ -30,13 +60,12 @@ function Navbar() {
 
     const handleLogout = () => {
         setAnchorEl(null);
-        firebase.auth().signOut()
-        navigate("/SignIn")
+        // Your logout logic here
     };
 
     const handleProfile = () => {
         setAnchorEl(null);
-        navigate("Profile")
+        navigate("Profile");
     };
 
     return (
@@ -64,6 +93,10 @@ function Navbar() {
                 <Typography variant="h6" style={{ padding: '16px' }}>
                     Notifications Tray
                 </Typography>
+                {/* Render the list of notifications */}
+                {notifications.map((notification, index) => (
+                    <Typography key={index}>{notification}</Typography>
+                ))}
             </Drawer>
         </>
     );

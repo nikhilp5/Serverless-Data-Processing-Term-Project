@@ -1,23 +1,62 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, Typography, TextField, Button, Card, CardContent } from '@mui/material';
+import { Box, Grid, Typography, TextField, Button, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogActions, } from '@mui/material';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
-import firebase from "firebase/compat/app";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+//import { AuthContext } from "../../services/AuthContext";
 
 function TeamOperations() {
-
-    console.log(firebase.auth().currentUser.email, "heeasree")
+    //const { currentUser } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const [teamName, setTeamName] = useState('');
     const [teamMembers, setTeamMembers] = useState([]);
+    const [currentUserId, setCurrentUserId] = useState('');
+    const [currentUserEmail, setCurrentUserEmail] = useState('');
 
     // Get teamId from previous screen
     const location = useLocation();
     const teamId = location.state?.teamId;
+    
+    // Invite another user
+    const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+    const [inviteEmail, setInviteEmail] = useState('');
+    const [inviteMessage, setInviteMessage] = useState('');
 
-    const inviteToTeam = () => {
-        // Logic to invite others to the team
+    const openInviteDialog = () => {
+        setInviteDialogOpen(true);
+    };
+    
+    const closeInviteDialog = () => {
+        setInviteDialogOpen(false);
+        setInviteEmail('');
+    };
+
+    const handleInviteEmailChange = (e) => {
+        setInviteEmail(e.target.value);
+    };
+
+    const handleInviteMessageChange = (e) => {
+        setInviteMessage(e.target.value);
+    }
+
+    const sendInvite = async () => {
+    try {
+        // Create a notification in DynamoDB
+        const response = await axios.post(
+        'https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/teaminvites',
+        {
+            inviteEmail: inviteEmail,
+            message: `You have been invited to join the team ${teamName}.`,
+        });
+
+        console.log('Invite sent successfully:', response.data);
+        alert('Invite has been sent!')
+
+        closeInviteDialog();
+    } catch (error) {
+        console.error('Failed to send invite:', error);
+    }
     };
 
     const viewTeamStatistics = () => {
@@ -26,7 +65,7 @@ function TeamOperations() {
 
     const handleUpdate = async (userId, action) => {
         try {
-            const response = await axios.put(
+            await axios.put(
                 `https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team`,
                 {
                     teamId: teamId,
@@ -35,19 +74,16 @@ function TeamOperations() {
                 }
             );
             if (action === 'updateRole') {
-                console.log('Role updated successfully:', response.data);
                 alert("Role updated successfully!");
             } 
             else if (action === 'kickUser') {
-                if (userId === firebase.auth().currentUser.uid) {
+                if (userId === currentUserId) {
                     alert("You kicked yourself out!");
                     navigate('/welcomeTeamPage')
                 } 
                 else {
                     alert("User kicked successfully!")
                 }
-                console.log('User kicked successfully:', response.data);
-                alert("User kicked successfully!");
             } 
 
         } catch (error) {
@@ -56,12 +92,9 @@ function TeamOperations() {
     };
 
     useEffect(() => {
-
-        console.log("This is the teamId I get from before screennn", teamId)
         const fetchTeamMembers = async () => {
             try {
                 const response = await axios.get(`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team?teamId=${teamId}`)
-                console.log("This is new response", response)
                 setTeamMembers(response.data.teamMembers);
 
             } catch (error) {
@@ -83,6 +116,17 @@ function TeamOperations() {
 
         generateTeamName();
 
+        // get current user
+        const auth = getAuth()
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log(user.uid)
+                setCurrentUserEmail(user.email)
+                setCurrentUserId(user.uid)
+            } else {
+                alert('Sign In to play!')
+            }
+        })
     }, [teamId]);
 
         return (
@@ -103,7 +147,7 @@ function TeamOperations() {
                         <Card style={{backgroundColor: "lightgreen"}} variant="elevation" align="center">
                         <CardContent>
                             <Typography variant="h6"> 
-                            {firebase.auth().currentUser.email} 
+                            {currentUserEmail} 
                             </Typography>
                             <Typography variant="overline" color="textSecondary">
                                 Admin
@@ -115,11 +159,11 @@ function TeamOperations() {
                     </Grid>
                 </Grid>
             </Box>
-            <Typography mt={4} variant="h6" align="center"> Team Members </Typography>
+            <Typography mt={4} mb={2} variant="h6" align="center"> Team Members </Typography>
             <Grid container justifyContent="center" spacing={2}>
                 {/* If the user is current user, then ignore!  */}
                 {teamMembers.map((member, index) => {
-                if (member.userId === firebase.auth().currentUser.uid) {
+                if (member.userId === currentUserId) {
                     return null; 
                 }
                 return (
@@ -155,17 +199,32 @@ function TeamOperations() {
             </Grid>
             </Box>
             <Box mt={5} mb={5} display="flex" justifyContent="center" alignItems="flex-end" gap={2}>
-                <Button variant="contained" color="success" onClick={inviteToTeam}>
+                <Button variant="contained" color="success" onClick={openInviteDialog}>
                     Invite Others
                 </Button>
                 <Button variant="contained" color='warning' onClick={viewTeamStatistics}>
                     View Team Statistics
                 </Button>
-                <Button variant="contained" color='error' onClick={() => handleUpdate(firebase.auth().currentUser.uid, 'kickUser')}>
+                <Button variant="contained" color='error' onClick={() => handleUpdate(currentUserId, 'kickUser')}>
                     Leave Team
                 </Button>
             </Box>
-            </Box>
+            <Dialog open={inviteDialogOpen} onClose={closeInviteDialog}>
+                <DialogTitle>Invite Others</DialogTitle>
+                    <DialogContent>
+                        <TextField label="Email Address" value={inviteEmail} onChange={handleInviteEmailChange} fullWidth />
+                    </DialogContent>
+                    <DialogContent>
+                        <TextField label="Message" value={inviteMessage} onChange={handleInviteMessageChange} fullWidth />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button color='error' onClick={closeInviteDialog}>Cancel</Button>
+                        <Button onClick={sendInvite} color="success">
+                            Send Invite
+                        </Button>
+                    </DialogActions>
+            </Dialog>
+        </Box>
     );
 }
 
