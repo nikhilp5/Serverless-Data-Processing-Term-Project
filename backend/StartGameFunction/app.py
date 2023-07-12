@@ -71,7 +71,49 @@ def lambda_handler(event, context):
             'nextResponder': teams[team_id]['teamMembers'][0]['userEmail']
         }
 
+        # print(json.dumps(game_state, indent=4))
 
+        # Set the current game state in Firestore
+        doc_ref = db.collection('currentGame').document(game_id)
+        doc_ref.set(game_state, merge=True)
+
+        action = "FIRST_QUESTION"
+
+        # TODO: Replace get request with nikhil
+        # Fetch the first question
+        first_question_response = requests.get(
+            f'https://3eqgdvn9wf.execute-api.us-east-1.amazonaws.com/dev/getquestion?questionId={question_ids[0]}')
+        first_question = first_question_response.json()
+
+        # Include the nextResponder in the first question message
+        first_question_message = {
+            'gameId': game_id,
+            'questionIndex': 0,
+            'totalQuestions': len(question_ids),
+            'question': first_question,
+            'nextResponder': game_state['nextResponder']
+        }
+
+        publish_message = {
+            'action': action,
+            'teamId': team_id,
+            'data': first_question_message
+        }
+
+        # Instantiate a Pub/Sub client with the scoped credentials.
+        publisher = pubsub_v1.PublisherClient()
+
+        topic_path = publisher.topic_path(
+            'serverless-project-21', 'GameStarted')
+
+        # Convert game state to JSON and encode it to bytes
+        publish_message_str = json.dumps(publish_message)
+        publish_message_bytes = publish_message_str.encode('utf-8')
+
+        # Publish the game state
+        publish_future = publisher.publish(
+            topic_path, data=publish_message_bytes)
+        publish_future.result()  # wait for the publish call to complete
 
         return {
             'statusCode': 200,
