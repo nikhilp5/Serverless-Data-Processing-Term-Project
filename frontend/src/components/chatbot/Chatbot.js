@@ -33,8 +33,8 @@ const Chatbot = () => {
     event.preventDefault();
 
     const params = {
-      botId: 'WLHR5ABTFA', 
-      botAliasId: 'ZY6QQLPASB', 
+      botId: 'N3WILBLNLZ', 
+      botAliasId: 'MNRGL2M89P', 
       localeId: 'en_US', 
       sessionId: userId,
       text: userInput,
@@ -50,6 +50,7 @@ const Chatbot = () => {
     } catch (error) {
       console.error('Error sending message to Lex:', error);
     }
+    setUserInput('');
   };
 
   return (

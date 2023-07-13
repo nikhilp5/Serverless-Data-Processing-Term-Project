@@ -1,5 +1,20 @@
+navigationIntent = 'NavigationIntent'
+teamScoresIntent = 'TeamScoresIntent'
+
 def lambda_handler(event, context):
-    url = "http://"
+	
+	intent_name = event['sessionState']['intent']['name']
+	user_input = event['inputTranscript'].lower()  # Retrieve user input from Lex event
+	
+	if intent_name==navigationIntent:
+		return handleNavIntent(user_input)
+	
+	if intent_name==teamScoresIntent:
+		return handleTeamScoresIntent(user_input)
+
+
+def handleNavIntent(user_input):
+	url = "http://"
     
     dictionary = {
         'login': f'{url}login',
@@ -7,12 +22,11 @@ def lambda_handler(event, context):
         'profile':  f'{url}profile'
     }
 
-    user_input = event['inputTranscript']  # Retrieve user input from Lex event
 
     if user_input in dictionary:
         response_str = dictionary[user_input]
     else:
-        response_str = 'Key not found in the dictionary.'
+        response_str = f'{user_input} not found.'
 
     response = {
 		  "sessionState": {
@@ -33,71 +47,32 @@ def lambda_handler(event, context):
 		}
     
     return response
-
-    # response = {
-    #     'sessionState': event['sessionState'],
-    #     'messages': [
-    #         {
-    #             'contentType': 'PlainText',
-    #             'content': ''
-    #         }
-    #     ],
-    # }
     
-    # response['sessionState']['dialogAction'] = {
-    #         "type": "Close",
-    #         "intent": {
-	# 	      "name": "NavigationIntent",
-	# 			  "state": "Fulfilled"
-	# 	    }
-    #     }
-        
-    # response['sessionState']["intent"] = {
-    #     "state": "Fulfilled",
-    #     "name": "string",
-    # }
 
 
+def handleTeamScoresIntent(user_input):
+	
+	response_str = f'{user_input} score is 100'
+
+    response = {
+		  "sessionState": {
+		    "dialogAction": {
+		      "type": "Close"
+		    },
+		    "intent": {
+		      "name": "NavigationIntent",
+				  "state": "Fulfilled"
+		    }
+		  },
+		  "messages": [
+	       {
+	         "contentType": "PlainText",
+	         "content": response_str
+	        }
+	    ]	
+		}
     
-    # print("-------")
-    # print("reponse=----", response)
-    # print("--------")
-
-    # return response
-
-# def lambda_handler(event, context):
-#     # Hardcoded dictionary
-#     dictionary = {
-#         'apple': 'A sweet fruit',
-#         'banana': 'A yellow fruit',
-#         'orange': 'A citrus fruit'
-#     }
-
-#     user_input = event['inputTranscript']  # Retrieve user input from Lex event
-
-#     response = {
-#         'sessionState': event['sessionState'],
-#         'messages': [
-#             {
-#                 'contentType': 'PlainText',
-#                 'content': ''
-#             }
-#         ],
-#     }
-    
-#     response['sessionState']['dialogAction'] = {
-#             "slotElicitationStyle": "Default",
-#             "slotToElicit": "string",
-#             "type": "Delegate"
-#         }
-
-#     if user_input in dictionary:
-#         response['messages'][0]['content'] = dictionary[user_input]
-#     else:
-#         response['messages'][0]['content'] = 'Key not found in the dictionary.'
-    
-#     print("-------")
-#     print("reponse=----", response)
-#     print("--------")
-
-#     return response
+    return response
+	
+	
+	
