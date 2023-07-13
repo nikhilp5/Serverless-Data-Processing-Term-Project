@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Drawer } from '@mui/material';
 import { AccountCircle, Notifications } from '@mui/icons-material';
 import axios from 'axios';
@@ -6,12 +6,14 @@ import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
+import { AuthContext } from '../../services/AuthContext';
 
 function Navbar() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [currentUserEmail, setCurrentUserEmail] = useState('');
+    const { setIsSecondFactorAuthDone } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleMenuOpen = (event) => {
@@ -63,6 +65,8 @@ function Navbar() {
     const handleLogout = () => {
         setAnchorEl(null);
         firebase.auth().signOut()
+        setIsSecondFactorAuthDone(false);
+        localStorage.setItem('isSecondFactorAuthDone', JSON.stringify(false));
         navigate("/SignIn")
     };
 

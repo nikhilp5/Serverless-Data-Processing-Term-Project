@@ -24,6 +24,7 @@ const Profile = () => {
   const [profilePicture, setProfilePicture] = useState(null);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
   const { currentUser } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
   const [profileUpdateResponse, setprofileUpdateResponse] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -62,12 +63,11 @@ const Profile = () => {
   };
 
   useEffect(() => {
-
     if (currentUser) {
       console.log('-------hi-----------');
       fetchProfile();
     }
-  }, [currentUser]);
+  }, [currentUser, isAuthenticated]);
 
   const handleNameChange = (e) => {
     setName(e.target.value);
@@ -140,7 +140,7 @@ const Profile = () => {
   };
 
   return (
-    currentUser ?
+    isAuthenticated ?
     <Grid container spacing={2} justifyContent="center" align="center" >
       <Grid item xs={12}>
         <Typography variant="h4">Profile</Typography>
@@ -214,7 +214,7 @@ const Profile = () => {
       </Grid>
     </Grid>
     :
-      <div>Loading...</div>
+      <div>Please login to access this page.</div>
   );
 };
 

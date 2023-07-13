@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { TextField, Grid, Button, Typography } from "@mui/material";
 import firebase from "firebase/compat/app";
 import AWS from "aws-sdk";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from '../../services/AuthContext';
 
 const AWS_CONFIG = {
   "region": process.env.REACT_APP_AWS_REGION,
@@ -27,6 +28,12 @@ const SecurityForm = () => {
 
   const [securityAnswers, setAnswers] = useState(securityQuestions.map(() => ""));
   const [error, setError] = useState("");
+  const { setIsSecondFactorAuthDone } = useContext(AuthContext);
+
+  const handleSetAuthDone = () => {
+    localStorage.setItem('isSecondFactorAuthDone', JSON.stringify(true));
+    setIsSecondFactorAuthDone(true);
+  };
 
   const handleChange = (event, index) => {
     const { value } = event.target;
@@ -48,7 +55,8 @@ const SecurityForm = () => {
       const result = JSON.parse(response.Payload);
   
       if (result.statusCode === 200) {
-        navigate("/welcome");
+        handleSetAuthDone();
+        navigate("/welcomeTeamPage");
       } else if (result.statusCode === 400){
           setError('Security answers do not match.');
         console.error('Lambda function execution failed');
