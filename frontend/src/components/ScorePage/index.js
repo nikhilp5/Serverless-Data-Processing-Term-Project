@@ -26,7 +26,7 @@ const ScorePage = () => {
 		try {
 			const response = await axios.post(url, data);
 			console.log(response.data); // log the response to the console
-			alert("View your inbox for notifications!")
+			alert("The leaderboard ranks have changed. View your inbox for notifications!")
 		} catch (error) {
 			console.error('Error sending POST request:', error); // log any error
 		}
