@@ -4,7 +4,6 @@ import { useNavigate, Navigate } from "react-router-dom";
 import { AuthContext } from "../../services/AuthContext";
 import AWS from "aws-sdk";
 import { convertLength } from "@mui/material/styles/cssUtils";
-const logo = require('../../images/profile.png');
 
 
 const AWS_CONFIG = {

@@ -4,6 +4,8 @@ import { AccountCircle, Notifications } from '@mui/icons-material';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
 
 function Navbar() {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -60,7 +62,8 @@ function Navbar() {
 
     const handleLogout = () => {
         setAnchorEl(null);
-        // Your logout logic here
+        firebase.auth().signOut()
+        navigate("/SignIn")
     };
 
     const handleProfile = () => {
