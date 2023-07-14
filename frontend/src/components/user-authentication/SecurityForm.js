@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TextField, Grid, Button, Typography } from "@mui/material";
+import { TextField, Grid, Button, Typography, Container } from "@mui/material";
 import firebase from "firebase/compat/app";
 import AWS from "aws-sdk";
 import { useNavigate } from "react-router-dom";
@@ -77,6 +77,7 @@ const SecurityForm = () => {
         Security Questions
       </Typography>
       <br></br>
+      <Container>
       <form onSubmit={handleSubmit}>
         <Grid container spacing={2} justifyContent="center" alignItems="center">
           {securityQuestions.map((question, index) => (
@@ -116,6 +117,7 @@ const SecurityForm = () => {
           )}
         </Grid>
       </form>
+      </Container>
     </div>
   );
 };
