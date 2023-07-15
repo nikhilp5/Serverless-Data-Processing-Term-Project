@@ -60,13 +60,15 @@ async function updateProfile(event) {
     }
 
     // Upload the image to S3
-    const uploadParams = {
-      Bucket: 'serverless-profile-images',
-      Key: `${userId}.jpg`,
-      Body: Buffer.from(image, 'base64'),
-    };
+    if (image) {
+      const uploadParams = {
+        Bucket: 'serverless-profile-images',
+        Key: `${userId}.jpg`,
+        Body: Buffer.from(image, 'base64'),
+      };
 
-    await s3.upload(uploadParams).promise();
+      await s3.upload(uploadParams).promise();
+    }
 
     return {
       statusCode: 200,

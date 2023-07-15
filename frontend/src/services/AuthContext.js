@@ -13,6 +13,8 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
+  const [isSecondFactorAuthDone, setIsSecondFactorAuthDone] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
@@ -22,8 +24,20 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    // Retrieve the value of `isSecondFactorAuthDone` from local storage
+    const storedValue = localStorage.getItem('isSecondFactorAuthDone');
+    if (storedValue) {
+      setIsSecondFactorAuthDone(JSON.parse(storedValue));
+    }
+  }, []);
+
+  useEffect(() => {
+    setIsAuthenticated(currentUser !== null && isSecondFactorAuthDone);
+  }, [currentUser, isSecondFactorAuthDone]);
+
   return (
-    <AuthContext.Provider value={{ currentUser }}>
+    <AuthContext.Provider value={{ currentUser, isSecondFactorAuthDone, setIsSecondFactorAuthDone, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );

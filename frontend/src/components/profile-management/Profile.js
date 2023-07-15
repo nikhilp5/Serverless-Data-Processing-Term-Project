@@ -2,20 +2,8 @@ import React, { useState, useContext, useEffect } from "react";
 import { Grid, Typography, Avatar, TextField, Button, Input } from "@mui/material";
 import { useNavigate, Navigate } from "react-router-dom";
 import { AuthContext } from "../../services/AuthContext";
-import AWS from "aws-sdk";
-import { convertLength } from "@mui/material/styles/cssUtils";
+import axios from 'axios';
 
-
-const AWS_CONFIG = {
-  "region": process.env.REACT_APP_AWS_REGION,
-  "accessKeyId": process.env.REACT_APP_AWS_ACCESS_KEY,
-  "secretAccessKey": process.env.REACT_APP_AWS_SECRET_KEY,
-  "sessionToken": process.env.REACT_APP_AWS_SESSION_TOKEN,
-};
-
-AWS.config.update(AWS_CONFIG);
-
-const lambda = new AWS.Lambda({ region: process.env.REACT_APP_AWS_REGION });
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -24,25 +12,25 @@ const Profile = () => {
   const [profilePicture, setProfilePicture] = useState(null);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
   const { currentUser } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
   const [profileUpdateResponse, setprofileUpdateResponse] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
 
-
+  const profileAPIEndpoint = 'https://km0vkw6jt0.execute-api.us-east-1.amazonaws.com/test/profile';
+  
   const fetchProfile = async () => {
     try {
-      const params = {
-        FunctionName: "profile",
-        Payload: JSON.stringify({
-          functionName: "getProfile",
-          userId: currentUser.uid,
-        }),
+      const payload = {
+        functionName: "getProfile",
+        userId: currentUser.uid,
       };
-
-      const data = await lambda.invoke(params).promise();
+    
+      const response = await axios.post(profileAPIEndpoint, payload);
+      console.log('response=====', response);
+      const data = response.data;
       console.log('-------lambda-----------');
 
-      if (data.StatusCode === 200) {
-        const profileData = JSON.parse(JSON.parse(data.Payload).body);
+      if (data.statusCode === 200) {
+        const profileData = JSON.parse(data.body);
 
         setName(profileData.name);
         setContactNumber(profileData.contactNumber);
@@ -54,20 +42,17 @@ const Profile = () => {
         console.error("Error fetching profile data");
       }
 
-      setIsLoading(false);
     } catch (error) {
       console.error("Error:", error);
-      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-
     if (currentUser) {
       console.log('-------hi-----------');
       fetchProfile();
     }
-  }, [currentUser]);
+  }, [currentUser, isAuthenticated]);
 
   const handleNameChange = (e) => {
     setName(e.target.value);
@@ -88,14 +73,19 @@ const Profile = () => {
     reader.onload = async (event) => {
       try {
         const imageBase64 = event.target.result.split(",")[1];
-        const params = {
-          FunctionName: "profile",
-          Payload: JSON.stringify({ functionName: 'updateProfile',  userId: currentUser.uid, name, contactNumber, image: imageBase64}),
+        const payload = {
+          functionName: 'updateProfile',
+          userId: currentUser.uid,
+          name,
+          contactNumber,
+          image: imageBase64,
         };
-
-        const data = await lambda.invoke(params).promise();
-        if (data.StatusCode === 200) {
-          console.log("data.StatusCode === 200");
+      
+        const response = await axios.post(profileAPIEndpoint, payload);
+        console.log('response=====', response);
+        const data = response.data;
+        if (data.statusCode === 200) {
+          console.log("data.statusCode === 200");
           setprofileUpdateResponse('Profile successfully updated');
         } else {  
           console.log('Error in updating profile');
@@ -113,22 +103,26 @@ const Profile = () => {
       reader.readAsDataURL(profilePictureFile);
     } else {
       try {
-        const params = {
-          FunctionName: "profile",
-          Payload: JSON.stringify({ functionName: 'updateProfile',  userId: currentUser.uid, name, contactNumber}),
+        const payload = {
+          functionName: 'updateProfile',
+          userId: currentUser.uid,
+          name,
+          contactNumber,
         };
-
-        const data = await lambda.invoke(params).promise();
-        if (data.StatusCode === 200) {
-          console.log("data.StatusCode === 200");
+      
+        const response = await axios.post(profileAPIEndpoint, payload);
+        console.log('response=====', response);
+        const data = response.data;
+        if (data.statusCode === 200) {
+          console.log("data.statusCode === 200");
           setprofileUpdateResponse('Profile successfully updated');
         } else {  
-          console.log('Error in updating profile');
+          console.log('Error in updating profile-----');
           setprofileUpdateResponse('Error in updating profile');
         }
       } catch (error) {
         console.error("Error:", error);
-        setprofileUpdateResponse('Error in updating profile');
+        setprofileUpdateResponse('Error in updating profile-1717171');
       }
       fetchProfile();
 
@@ -140,7 +134,7 @@ const Profile = () => {
   };
 
   return (
-    currentUser ?
+    isAuthenticated ?
     <Grid container spacing={2} justifyContent="center" align="center" >
       <Grid item xs={12}>
         <Typography variant="h4">Profile</Typography>
@@ -214,7 +208,7 @@ const Profile = () => {
       </Grid>
     </Grid>
     :
-      <div>Loading...</div>
+      <div>Please login to access this page.</div>
   );
 };
 
