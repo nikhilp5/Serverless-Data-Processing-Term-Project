@@ -4,6 +4,7 @@ import { AccountCircle, Notifications } from '@mui/icons-material';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import firebase from "firebase/compat/app";
 
 function Navbar() {
     const [anchorEl, setAnchorEl] = useState(null);
