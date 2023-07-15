@@ -4,17 +4,9 @@ import firebase from "firebase/compat/app";
 import AWS from "aws-sdk";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../../services/AuthContext';
+import axios from 'axios';
 
-const AWS_CONFIG = {
-  "region": process.env.REACT_APP_AWS_REGION,
-  "accessKeyId": process.env.REACT_APP_AWS_ACCESS_KEY,
-  "secretAccessKey": process.env.REACT_APP_AWS_SECRET_KEY,
-  "sessionToken": process.env.REACT_APP_AWS_SESSION_TOKEN,
-};
-
-AWS.config.update(AWS_CONFIG);
-
-const lambda = new AWS.Lambda({ region: process.env.REACT_APP_AWS_REGION });
+const securityAPIEndpoint = 'https://km0vkw6jt0.execute-api.us-east-1.amazonaws.com/test/security';
 
 const SecurityForm = () => {
 
@@ -45,14 +37,14 @@ const SecurityForm = () => {
   };
   
   const invokesecondFactorAuthLambda = async (userId) => {
-    const params = {
-      FunctionName: 'secondFactorAuthentication',
-      Payload: JSON.stringify({ userId, securityAnswers: securityAnswers }),
+    const requestData = {
+      userId,
+      securityAnswers: securityAnswers,
     };
   
     try {
-      const response = await lambda.invoke(params).promise();
-      const result = JSON.parse(response.Payload);
+      const response = await axios.post(securityAPIEndpoint, requestData);
+      const result = response.data;
   
       if (result.statusCode === 200) {
         handleSetAuthDone();
