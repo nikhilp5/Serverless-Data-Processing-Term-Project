@@ -1,25 +1,11 @@
 import React, { useState } from 'react';
-import AWS, { LexRuntimeV2 } from 'aws-sdk';
-import {TextField, Button, Input } from "@mui/material";
+import axios from 'axios';
 
 const { v4: uuidv4 } = require('uuid');
 
-const AWS_CONFIG = {
-    "region": process.env.REACT_APP_AWS_REGION,
-    "accessKeyId": process.env.REACT_APP_AWS_ACCESS_KEY,
-    "secretAccessKey": process.env.REACT_APP_AWS_SECRET_KEY,
-    "sessionToken": process.env.REACT_APP_AWS_SESSION_TOKEN,
-  };
-  
-  AWS.config.update(AWS_CONFIG);
-
-
-const lexRuntime = new LexRuntimeV2({
-  region: process.env.REACT_APP_AWS_REGION,
-});
-
 const userId = uuidv4();
 
+const chatbotAPIEndpoint = 'https://km0vkw6jt0.execute-api.us-east-1.amazonaws.com/test/chatbot';
 
 const Chatbot = () => {
   const [userInput, setUserInput] = useState('');
@@ -32,21 +18,12 @@ const Chatbot = () => {
   const handleSendMessage = async (event) => {
     event.preventDefault();
 
-    const params = {
-      botId: 'N3WILBLNLZ', 
-      botAliasId: 'MNRGL2M89P', 
-      localeId: 'en_US', 
-      sessionId: userId,
-      text: userInput,
-    };
-
     try {
-      const response = await lexRuntime.recognizeText(params).promise();
-      const { messages } = response;
-      console.log(response);
-      const botMessage = messages.find((msg) => msg.contentType === 'PlainText');
-
-      setBotResponse(botMessage.content);
+      const response = await axios.post(chatbotAPIEndpoint, {
+        sessionId: userId,
+        text: userInput,
+      });
+      setBotResponse(response.data.body);
     } catch (error) {
       console.error('Error sending message to Lex:', error);
     }
