@@ -17,9 +17,14 @@ function TeamWelcomePage() {
   useEffect(() => {
     if (currentUser) {
       setCurrentUserEmail(currentUser.email);
-      getTeamDetails();
     }
   }, [currentUser, isAuthenticated]);
+
+  useEffect(() => {
+    if (currentUserEmail) {
+      getTeamDetails();
+    }
+  }, [currentUserEmail]);
 
   const getTeamDetails = async () => {
     try {
