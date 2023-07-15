@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Box, Grid, Typography, TextField, Button, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogActions, } from '@mui/material';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-//import { AuthContext } from "../../services/AuthContext";
+import { AuthContext } from "../../services/AuthContext";
 
 function TeamOperations() {
     //const { currentUser } = useContext(AuthContext);
@@ -13,6 +12,8 @@ function TeamOperations() {
     const [teamMembers, setTeamMembers] = useState([]);
     const [currentUserEmail, setCurrentUserEmail] = useState('');
     const [currentUserRole, setCurrentUserRole] = useState('');
+    const { currentUser } = useContext(AuthContext);
+    const { isAuthenticated } = useContext(AuthContext);
 
     // Get teamId from previous screen
     const location = useLocation();
@@ -127,19 +128,13 @@ function TeamOperations() {
         };
 
         generateTeamName();
-
-        // get current user
-        const auth = getAuth()
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                setCurrentUserEmail(user.email)
-            } else {
-                alert('Sign In to play!')
-            }
-        })
-    }, [teamId, currentUserEmail]);
+        if (currentUser) {
+            setCurrentUserEmail(currentUser.email)
+        } 
+    }, [teamId, currentUserEmail, currentUser, isAuthenticated]);
 
         return (
+            isAuthenticated ?
             <Box mt={5}>
                 <Grid container justifyContent="center" spacing={2}>
                     <Grid item>
@@ -217,6 +212,8 @@ function TeamOperations() {
                     </DialogActions>
             </Dialog>
         </Box>
+        :
+        <div>Please login to access this page.</div>
     );
 }
 

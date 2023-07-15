@@ -18,6 +18,8 @@ function Navbar() {
     const [currentUserEmail, setCurrentUserEmail] = useState('');
     const { setIsSecondFactorAuthDone } = useContext(AuthContext);
     const navigate = useNavigate();
+    const { currentUser } = useContext(AuthContext);
+    const { isAuthenticated } = useContext(AuthContext);
 
     const handleMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
@@ -27,27 +29,14 @@ function Navbar() {
         setAnchorEl(null);
     };
 
-    // get current user
     useEffect(() => {
-        const auth = getAuth();
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                setCurrentUserEmail(user.email)
-                setIsLoggedOut(false); // User is logged in
-            } else {
-                console.log('Loggedout!')
-                setIsLoggedOut(true); // User is logged out
-            }
-        });
-
-        return () => {
-            unsubscribe(); // Cleanup the subscription on unmount
-        };
-    }, []);
+        if (currentUser) {
+          setCurrentUserEmail(currentUser.email);
+        }
+      }, [currentUser, isAuthenticated]);
 
     const handleNotificationClick = async () => {
-        if (isLoggedOut) {
-            alert('Sign In to play!'); // Show alert only if logged out
+        if (!isAuthenticated) {
             return;
         }
         try {

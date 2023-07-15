@@ -1,8 +1,8 @@
 import { Box, Button, Typography, FormControlLabel, Checkbox } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { AuthContext } from '../../services/AuthContext';
 
 function TeamWelcomePage() {
   const navigate = useNavigate();
@@ -11,32 +11,26 @@ function TeamWelcomePage() {
   const [currentUserEmail, setCurrentUserEmail] = useState('');
   const [notificationEnabled, setNotificationEnabled] = useState(false);
   const [teamNotificationsEnabled, setTeamNotificationsEnabled] = useState(false);
+  const { currentUser } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
 
   useEffect(() => {
-    const auth = getAuth();
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setCurrentUserEmail(user.email);
-      } else {
-        alert('Sign In to play!');
-      }
-    });
-
-    const getTeamDetails = async () => {
-      try {
-        const response = await axios.get(`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team-by-user?userEmail=${currentUserEmail}`);
-        console.log("This is output", response)
-        setNewTeamId(response.data[0].teamId);
-        setTeamName(response.data[0].teamName);
-      } catch (error) {
-        console.error(error.message);
-      }
-    };
-
-    if (currentUserEmail) {
+    if (currentUser) {
+      setCurrentUserEmail(currentUser.email);
       getTeamDetails();
     }
-  }, [currentUserEmail]);
+  }, [currentUser, isAuthenticated]);
+
+  const getTeamDetails = async () => {
+    try {
+      const response = await axios.get(`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team-by-user?userEmail=${currentUserEmail}`);
+      console.log("This is output", response)
+      setNewTeamId(response.data[0].teamId);
+      setTeamName(response.data[0].teamName);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
 
   const createTeam = async () => {
     try {
@@ -102,6 +96,7 @@ function TeamWelcomePage() {
   };
 
   return (
+    isAuthenticated ?
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
       <Box width="50%">
         <Box mb={2}>
@@ -144,6 +139,8 @@ function TeamWelcomePage() {
         />
       </Box>
     </Box>
+    :
+    <div>Please login to access this page.</div>
   );
 }
 

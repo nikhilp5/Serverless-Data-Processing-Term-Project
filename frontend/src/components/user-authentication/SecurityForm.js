@@ -1,7 +1,6 @@
 import React, { useState, useContext } from "react";
-import { TextField, Grid, Button, Typography } from "@mui/material";
+import { TextField, Grid, Button, Typography, Container } from "@mui/material";
 import firebase from "firebase/compat/app";
-import AWS from "aws-sdk";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../../services/AuthContext';
 import axios from 'axios';
