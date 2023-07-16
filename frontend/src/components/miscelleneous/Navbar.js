@@ -3,7 +3,6 @@ import { AccountCircle, Notifications, Android } from '@mui/icons-material';
 import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Drawer, Card, CardActions, Button, CardContent } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import { AuthContext } from '../../services/AuthContext';
@@ -13,7 +12,6 @@ function Navbar() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isChatbotOpen, setIsChatbotOpen] = useState(false);
-
     const [notifications, setNotifications] = useState([]);
     const [currentUserEmail, setCurrentUserEmail] = useState('');
     const { setIsSecondFactorAuthDone } = useContext(AuthContext);
@@ -37,7 +35,8 @@ function Navbar() {
 
     const handleNotificationClick = async () => {
         if (!isAuthenticated) {
-            return;
+            alert('Please log in, to view notifications!');
+            return
         }
         try {
             const response = await axios.get(`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team-notifications?userEmail=${currentUserEmail}`);
@@ -57,11 +56,12 @@ function Navbar() {
                 userEmail: currentUserEmail,
                 teamId: teamId,
             });
-            setNotifications(prevNotifications => ({
-                ...prevNotifications,
-                messages: prevNotifications.messages.filter(notification => notification.teamId !== teamId),
-            }));
+            // setNotifications(prevNotifications => ({
+            //     ...prevNotifications,
+            //     messages: prevNotifications.messages.filter(notification => notification.teamId !== teamId),
+            // }));
             alert('Invite accepted!')
+            alert('Please confirm subscription in your inbox/spam to receive team notifications!')
         } catch (error) {
             console.error('Failed to accept invite:', error);
         }
@@ -75,10 +75,10 @@ function Navbar() {
                 teamId: teamId,
             });
             console.log('Invite decline response:', response);
-            setNotifications(prevNotifications => ({
-                ...prevNotifications,
-                messages: prevNotifications.messages.filter(notification => notification.teamId !== teamId),
-            }));
+            // setNotifications(prevNotifications => ({
+            //     ...prevNotifications,
+            //     messages: prevNotifications.messages.filter(notification => notification.teamId !== teamId),
+            // }));
             alert('Invite declined')
         } catch (error) {
             console.error('Failed to decline invite:', error);
@@ -123,8 +123,14 @@ function Navbar() {
                         <AccountCircle />
                     </IconButton>
                     <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-                        <MenuItem onClick={handleProfile}>My Profile</MenuItem>
-                        <MenuItem onClick={handleLogout}>Log Out</MenuItem>
+                        {isAuthenticated ? (
+                            <>
+                                <MenuItem onClick={handleProfile}>My Profile</MenuItem>
+                                <MenuItem onClick={handleLogout}>Log Out</MenuItem>
+                            </>
+                        ) : (
+                            <MenuItem onClick={() => navigate("/SignIn")}>Log In</MenuItem>
+                        )}
                     </Menu>
                 </Toolbar>
                 {isChatbotOpen && (

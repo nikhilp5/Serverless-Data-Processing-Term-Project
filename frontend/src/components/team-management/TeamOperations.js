@@ -69,7 +69,7 @@ function TeamOperations() {
 
     const handleUpdate = async (userEmail, action) => {
         try {
-            await axios.put(
+            const response = await axios.put(
                 `https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team`,
                 {
                     teamId: teamId,
@@ -78,6 +78,7 @@ function TeamOperations() {
                 }
             );
             if (action === 'updateRole') {
+                console.log(response)
                 alert("Role updated successfully!");
             } 
             else if (action === 'kickUser') {
@@ -160,11 +161,11 @@ function TeamOperations() {
                                     <Grid item>
                                         {currentUserRole === 'admin' && (
                                             member.userRole.toLowerCase() === 'admin' ? (
-                                                <Button color="secondary" onClick={() => handleUpdate(member.userId, 'updateRole')}>
+                                                <Button color="secondary" onClick={() => handleUpdate(member.userEmail, 'updateRole')}>
                                                     Demote to Member
                                                 </Button>
                                             ) : (
-                                                <Button color="primary" onClick={() => handleUpdate(member.userId, 'updateRole')}>
+                                                <Button color="primary" onClick={() => handleUpdate(member.userEmail, 'updateRole')}>
                                                     Promote to Admin
                                                 </Button>
                                             )
@@ -186,9 +187,9 @@ function TeamOperations() {
             </Grid>
             </Box>
             <Box mt={5} mb={5} display="flex" justifyContent="center" alignItems="flex-end" gap={2}>
-                <Button variant="contained" color="success" onClick={openInviteDialog}>
-                    Invite Others
-                </Button>
+            <Button variant="contained" color="success" onClick={openInviteDialog} disabled={currentUserRole === "member"}>
+                Invite Others
+            </Button>
                 <Button variant="contained" color='warning' onClick={viewTeamStatistics}>
                     View Team Statistics
                 </Button>
