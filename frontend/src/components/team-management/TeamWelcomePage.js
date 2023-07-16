@@ -1,106 +1,136 @@
-import { Box, Button, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { Box, Button, Typography, FormControlLabel, Checkbox, Card, CardContent } from '@mui/material';
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-//import { AuthContext } from "../../services/AuthContext";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { AuthContext } from '../../services/AuthContext';
 
 function TeamWelcomePage() {
-    //const { currentUser } = useContext(AuthContext);
-    const navigate = useNavigate();
-    const [teamName, setTeamName] = useState('');
-    const [newTeamId, setNewTeamId] = useState('');
-    const [currentUserId, setCurrentUserId] = useState('');
+  const navigate = useNavigate();
+  const [userTeams, setUserTeams] = useState([]);
+  const [currentUserEmail, setCurrentUserEmail] = useState('');
+  const [notificationEnabled, setNotificationEnabled] = useState(false);
+  const { currentUser } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
 
-    // Get Team By User ID
-    useEffect(() => {
+  useEffect(() => {
+    if (currentUser) {
+      setCurrentUserEmail(currentUser.email);
+    }
+  }, [currentUser, isAuthenticated]);
 
-        // get current user
-        const auth = getAuth()
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                console.log(user.uid)
-                setCurrentUserId(user.uid)
-                // ...
-            } else {
-                alert('Sign In to play!')
-            }
-        })
+  useEffect(() => {
+    if (currentUserEmail) {
+      getTeamDetails();
+    }
+  }, [currentUserEmail]);
 
-        console.log("This is ucrrent userrr", currentUserId)
-        const getTeamDetails = async () => {
-          try {    
-            const response = await axios.get(`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team-by-user?userId=${currentUserId}`);
-            setNewTeamId(response.data[0].teamId)
-            setTeamName(response.data[0].teamName)
+  const getTeamDetails = async () => {
+    try {
+      const response = await axios.get(`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team-by-user?userEmail=${currentUserEmail}`);
+      console.log("This is output", response.data)
+      setUserTeams(response.data)
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
 
-          } catch (error) {
-            console.error(error.message);
-            setTeamName('Error retrieving team name');
-          }
-        };
-        
-        if(currentUserId) {
-            getTeamDetails()
+  const createTeam = async () => {
+    try {
+      const response = await axios.post(
+        'https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team',
+        {
+          userEmail: currentUserEmail
         }
+      );
+      alert('Team created successfully!');
+      alert('Please check your inbox/spam and confirm subscription for team notifications!')
+      window.location.reload();
+    } catch (error) {
+      console.error('Error creating team:', error);
+    }
+  };
 
-      }, [currentUserId]);
+  const viewTeam = (teamId) => {
+    navigate('/teamOperations', { state: { teamId: teamId } });
+  };
 
-    // Team is created with the current user as admin
-    const createTeam = async () => {
-        try {
-            // Send a POST request to the API endpoint
-            const response = await axios.post(
-                'https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team',
-                {
-                    userId: currentUserId
-                }
-            );
-            const newTeamId = response.data.body.teamId;
-            setNewTeamId(newTeamId);   
-            alert("team created successfully!")
-        } catch (error) {
-            // Handle any errors that occur during the request
-            console.error('Error creating team:', error);
+  const handleNotificationChange = async (event) => {
+    const { checked } = event.target;
+    setNotificationEnabled(checked);
+
+    try {
+        if (checked) {
+          // Make a POST request when the checkbox is checked
+          const response = await axios.post('https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/sns-topic', { inviteEmail: currentUserEmail });
+          console.log("This is responseeeeeeeeee", response)
+          alert('Please confirm the email subscription in your registered email inbox/spam. Thanks!')
+          //console.log('Notification enabled and POST request sent.');
+        } else {
+          // Perform any necessary actions when the checkbox is unchecked
+          console.log('Notification disabled.');
         }
-    };    
+    }
+    catch (error) {
+        console.log(error.message)
+    } 
+  };
 
-    const viewTeam = () => {
-        navigate('/teamOperations', { state: { teamId: newTeamId } });
-    };
-
-    return (
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-            {/* Create a new team code */}
-            <Box width="50%">
-            <Box mb={2}>
-            <Typography variant="h6" align="center" gutterBottom>
-                Let's create a team to play, let's go!
-            </Typography>
-            </Box>
-            <Box textAlign="center">
-            <Button color="success" variant="contained" onClick={createTeam} disabled={!!newTeamId}>
-                Create Team
-            </Button>
-            </Box>
+  return (
+    isAuthenticated ?
+    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+      <Box width="50%">
+        <Box mb={2}>
+          <Typography variant="h6" align="center" gutterBottom>
+            Let's create a team to play, let's go!
+          </Typography>
         </Box>
-        <Box width="50%">
-            <Box mb={2}>
-            <Typography variant="h6" align="center" gutterBottom>
-                Your Team
-            </Typography>
-            </Box>
-            <Typography variant="body1" align="center">
-            Team Name: {teamName}
-            </Typography>
-            <Box mt={2} textAlign="center">
-            <Button variant="contained" onClick={viewTeam} disabled={!teamName || teamName === 'Not part of any team'}>
+        <Box textAlign="center">
+          <Button color="success" variant="contained" onClick={createTeam}>
+            Create Team
+          </Button>
+        </Box>
+      </Box>
+      <Box mt={4} textAlign="center">
+        <FormControlLabel
+          control={<Checkbox checked={notificationEnabled} onChange={handleNotificationChange} />}
+          label="Enable notification if you want others to invite you to their team"
+        />
+      </Box>
+      <Box width="50%">
+        <Box mb={2}>
+          <Typography variant="h6" align="center" gutterBottom>
+            Your Teams
+          </Typography>
+        </Box>
+        {userTeams.map((team, index) => (
+          <Card key={index}>
+            <CardContent>
+              <Typography variant="h5">{team.teamName}</Typography>
+              <Button variant="contained" onClick={() => viewTeam(team.teamId)}>
                 View Team
-            </Button>
-            </Box>
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+        {/* <Typography variant="body1" align="center">
+          Team Name: {teamName}
+        </Typography>
+        <Box mt={2} textAlign="center">
+          <Button variant="contained" onClick={viewTeam}>
+            View Team
+          </Button>
         </Box>
-        </Box>
-    );
+        <Box mt={2} textAlign="center">
+          <FormControlLabel
+            control={<Checkbox checked={teamNotificationsEnabled} onChange={handleTeamNotificationChange} />}
+            label="Click for your team's notifications"
+          />
+        </Box> */}
+      </Box>
+    </Box>
+    :
+    <div>Please login to access this page.</div>
+  );
 }
 
 export default TeamWelcomePage;
