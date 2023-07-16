@@ -6,21 +6,21 @@ import Profile from '../components/profile-management/Profile';
 import UserStats from '../components/profile-management/UserStats';
 import LandingPage from '../components/miscelleneous/LandingPage';
 import TeamWelcomePage from '../components/team-management/TeamWelcomePage';
-import Chatbot from '../components/chatbot/Chatbot';
+import Quiz from '../components/quiz';
 
 const Routes = () => {
-    return (
-        <Rt>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/SignIn" element={<SignIn />} />
-            <Route path="/welcomeTeamPage" element={<TeamWelcomePage />} />
-            <Route path="/TeamOperations" element={<TeamOperations />} />
-            <Route path="/SecurityForm" element={<SecurityForm/>} />
-            <Route path="/Profile" element={<Profile/>} />
-            <Route path="/UserStats" element={<UserStats/>} />
-            <Route path="/Chatbot" element={<Chatbot/>} />
-        </Rt>
-    )
-}
+	return (
+		<Rt>
+			<Route path='/' element={<LandingPage />} />
+			<Route path='/SignIn' element={<SignIn />} />
+			<Route path='/welcomeTeamPage' element={<TeamWelcomePage />} />
+			<Route path='/TeamOperations' element={<TeamOperations />} />
+			<Route path='/SecurityForm' element={<SecurityForm />} />
+			<Route path='/Profile' element={<Profile />} />
+			<Route path='/UserStats' element={<UserStats />} />
+			<Route path='/Trivia' element={<Quiz />} />
+		</Rt>
+	);
+};
 
 export default Routes;
