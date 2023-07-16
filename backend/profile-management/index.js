@@ -5,15 +5,14 @@ const dynamodb = new AWS.DynamoDB();
 exports.handler = async (event) => {
   const functionName = event.functionName;
   if (functionName === 'updateProfile') {
-    return updateProfile(event)
+    return updateProfile(event);
   } else if (functionName === 'getProfile') {
-    return getProfile(event)
+    return getProfile(event);
   }
-
 };
 
 async function updateProfile(event) {
-  const { userId, image, name, contactNumber } = event;
+  const { userId, image, name, email, contactNumber } = event;
 
   const getItemParams = {
     TableName: 'profile_info',
@@ -33,13 +32,15 @@ async function updateProfile(event) {
         Key: {
           userId: { S: userId },
         },
-        UpdateExpression: 'SET #name = :name, #contact = :contact',
+        UpdateExpression: 'SET #name = :name, #email = :email, #contact = :contact',
         ExpressionAttributeNames: {
           '#name': 'name',
+          '#email': 'email',
           '#contact': 'contactNumber',
         },
         ExpressionAttributeValues: {
           ':name': { S: name },
+          ':email': { S: email },
           ':contact': { S: contactNumber },
         },
       };
@@ -52,6 +53,7 @@ async function updateProfile(event) {
         Item: {
           userId: { S: userId },
           name: { S: name },
+          email: { S: email },
           contactNumber: { S: contactNumber },
         },
       };
@@ -80,7 +82,7 @@ async function updateProfile(event) {
       body: 'Error saving user information',
     };
   }
-};
+}
 
 async function getProfile(event) {
   const { userId } = event;
@@ -97,7 +99,7 @@ async function getProfile(event) {
 
     if (userProfile.Item) {
       // User profile found
-      const { name, contactNumber } = userProfile.Item;
+      const { name, email, contactNumber } = userProfile.Item;
 
       // Get the image from S3
       const imageKey = `${userId}.jpg`;
@@ -114,6 +116,7 @@ async function getProfile(event) {
           statusCode: 200,
           body: JSON.stringify({
             name: name.S,
+            email: email.S,
             contactNumber: contactNumber.S,
             image: `https://serverless-profile-images.s3.amazonaws.com/${userId}.jpg`,
           }),
@@ -126,6 +129,7 @@ async function getProfile(event) {
           statusCode: 200,
           body: JSON.stringify({
             name: name.S,
+            email: email.S,
             contactNumber: contactNumber.S,
             image: defaultImage,
           }),
@@ -145,4 +149,5 @@ async function getProfile(event) {
     };
   }
 }
+
 

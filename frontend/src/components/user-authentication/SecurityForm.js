@@ -44,10 +44,17 @@ const SecurityForm = () => {
     try {
       const response = await axios.post(securityAPIEndpoint, requestData);
       const result = response.data;
+      const body = JSON.parse(result.body);
+      console.log("result-------", result);
+      console.log("body-------", body);
   
       if (result.statusCode === 200) {
         handleSetAuthDone();
-        navigate("/welcomeTeamPage");
+        if (body.newUser) {
+          navigate("/profile?isNewUser=true");
+        } else{
+          navigate("/welcomeTeamPage");
+        }
       } else if (result.statusCode === 400){
           setError('Security answers do not match.');
         console.error('Lambda function execution failed');
