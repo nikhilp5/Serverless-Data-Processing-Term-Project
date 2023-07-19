@@ -31,7 +31,7 @@ exports.handler = async (event) => {
 
       return {
         statusCode: 200,
-        body: JSON.stringify({ message: 'Answers saved successfully' }),
+        body: JSON.stringify({ message: 'Answers saved successfully', newUser: true }),
       };
     }
 
@@ -42,13 +42,13 @@ exports.handler = async (event) => {
       // Answers match
       return {
         statusCode: 200,
-        body: JSON.stringify({ message: 'Answers match' }),
+        body: JSON.stringify({ message: 'Answers match', newUser: false }),
       };
     } else {
       // Answers do not match
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'Answers do not match' }),
+        body: JSON.stringify({ error: 'Answers do not match', newUser: false  }),
       };
     }
   } catch (error) {
