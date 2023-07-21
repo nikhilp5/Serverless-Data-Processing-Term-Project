@@ -255,8 +255,6 @@ const QuestionsManagePage = () => {
     }));
   };
 
-  // ... (other existing handle functions)
-
   // Pagination change handler
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
