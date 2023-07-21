@@ -190,7 +190,7 @@ const Profile = () => {
         <TextField label="Email" value={currentUser.email || ""} disabled />
       </Grid>
       <Grid item xs={12}>
-        <TextField label="Name" value={name} onChange={handleNameChange} error={error !== ""}
+        <TextField label="Name*" value={name} onChange={handleNameChange} error={error !== ""}
         helperText={error}/>
       </Grid>
       <Grid item xs={12}>
@@ -226,15 +226,6 @@ const Profile = () => {
               onClick={handleViewStats}
             >
               View statistics
-            </Button>
-          </Grid>
-          <Grid item xs={12}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSaveChanges}
-            >
-              Manage team affiliations
             </Button>
           </Grid>
           <Grid item xs={12}>
