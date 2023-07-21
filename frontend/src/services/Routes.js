@@ -6,6 +6,11 @@ import Profile from '../components/profile-management/Profile';
 import UserStats from '../components/profile-management/UserStats';
 import LandingPage from '../components/miscelleneous/LandingPage';
 import TeamWelcomePage from '../components/team-management/TeamWelcomePage';
+import AdminLandingPage from "../components/admin/AdminLandingPage";
+import EngagementPage from "../components/admin/EngagementPage";
+import GamesManagePage from "../components/admin/GamesManagePage";
+import QuestionsManagePage from "../components/admin/QuestionsManagePage";
+import LeaderBoard from "../components/leaderboard/LeaderBoard";
 
 const Routes = () => {
     return (
@@ -17,6 +22,11 @@ const Routes = () => {
             <Route path="/SecurityForm" element={<SecurityForm/>} />
             <Route path="/Profile" element={<Profile/>} />
             <Route path="/UserStats" element={<UserStats/>} />
+            <Route path="/adminpage" element={<AdminLandingPage />} />
+            <Route path="/engagementpage" element={<EngagementPage />} />
+            <Route path="/gamesmanagepage" element={<GamesManagePage />} />
+            <Route path="/questionsmanagepage" element={<QuestionsManagePage />} />
+            <Route path="/leaderboard" element={<LeaderBoard />} />
         </Rt>
     )
 }
