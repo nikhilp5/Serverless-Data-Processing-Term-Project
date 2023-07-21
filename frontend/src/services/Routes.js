@@ -7,6 +7,7 @@ import UserStats from '../components/profile-management/UserStats';
 import LandingPage from '../components/miscelleneous/LandingPage';
 import TeamWelcomePage from '../components/team-management/TeamWelcomePage';
 import Quiz from '../components/quiz';
+import TeamMembers from '../components/quiz-wait-lobby';
 
 const Routes = () => {
 	return (
@@ -18,7 +19,8 @@ const Routes = () => {
 			<Route path='/SecurityForm' element={<SecurityForm />} />
 			<Route path='/Profile' element={<Profile />} />
 			<Route path='/UserStats' element={<UserStats />} />
-			<Route path='/Trivia' element={<Quiz />} />
+			<Route path='/Quiz' element={<Quiz />} />
+			<Route path='/WaitLobby' element={<TeamMembers />} />
 		</Rt>
 	);
 };

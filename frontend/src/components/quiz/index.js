@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Typography, Paper, Box } from '@mui/material';
 import { quizQuestions } from './questions';
 import { makeStyles } from '@mui/styles';
@@ -74,6 +74,21 @@ const Quiz = () => {
 			alert(`Quiz ended! Your score is: ${score}`);
 		}
 	};
+
+	useEffect(() => {
+		const ws = new WebSocket(
+			'wss://rireb5nnb2.execute-api.us-east-1.amazonaws.com/dev'
+		);
+
+		ws.onopen = () => {
+			console.log('WebSocket connection opened');
+		};
+
+		ws.onmessage = (message) => {
+			console.log('message', message.data);
+			//setGameState(JSON.parse(message.data));
+		};
+	}, []);
 
 	return (
 		<Box className={classes.quizContainer}>
