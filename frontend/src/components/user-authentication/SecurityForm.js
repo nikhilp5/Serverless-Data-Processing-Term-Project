@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { TextField, Grid, Button, Typography, Container } from "@mui/material";
 import firebase from "firebase/compat/app";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +20,40 @@ const SecurityForm = () => {
   const [securityAnswers, setAnswers] = useState(securityQuestions.map(() => ""));
   const [error, setError] = useState("");
   const { setIsSecondFactorAuthDone } = useContext(AuthContext);
+  const [isNewUser, setIsNewUser] = useState(false);
+  const { currentUser } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (currentUser) {
+      checkIfuserExists(currentUser.uid)
+    }
+  }, [currentUser]);
+
+  const checkIfuserExists = async (userId) => {
+    const requestData = {
+      userId,
+      functionName: "checkUserExists"
+    };
+    try {
+      const response = await axios.post(securityAPIEndpoint, requestData);
+      const result = response.data;
+      const body = JSON.parse(result.body);
+      console.log("result-------", result);
+      console.log("body-------", body);
+  
+      if (result.statusCode === 200) {
+        handleSetAuthDone();
+        if (body.newUser) {
+          setIsNewUser(true);
+        } else{
+          setIsNewUser(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error invoking Lambda function:', error);
+      setError('Some error occured. Please try again');
+    }
+  }
 
   const handleSetAuthDone = () => {
     localStorage.setItem('isSecondFactorAuthDone', JSON.stringify(true));
@@ -39,6 +73,7 @@ const SecurityForm = () => {
     const requestData = {
       userId,
       securityAnswers: securityAnswers,
+      functionName: "checkSecurityAnswers"
     };
   
     try {
@@ -79,9 +114,16 @@ const SecurityForm = () => {
 
   return (
     <div>
-      <Typography variant="h3" component="h3" align="center">
-        Security Questions
-      </Typography>
+      {isNewUser ? (
+        <Typography variant="h3" component="h3" align="center">
+          You are a new user: Please answer these security questions.
+        </Typography>
+      ) : (
+        <Typography variant="h3" component="h3" align="center">
+          You are an existing user: Please answer the security questions.
+        </Typography>
+      )
+      }
       <br></br>
       <Container>
       <form onSubmit={handleSubmit}>
