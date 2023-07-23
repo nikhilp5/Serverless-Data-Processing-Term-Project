@@ -79,9 +79,22 @@ const SecurityForm = () => {
 
   return (
     <div>
+<<<<<<< Updated upstream
       <Typography variant="h3" component="h3" align="center">
         Security Questions
       </Typography>
+=======
+      {isNewUser ? (
+        <Typography variant="h6" component="h3" align="center">
+          You are a new user: Please answer these security questions.
+        </Typography>
+      ) : (
+        <Typography variant="h6" component="h3" align="center">
+          You are an existing user: Please answer the security questions.
+        </Typography>
+      )
+      }
+>>>>>>> Stashed changes
       <br></br>
       <Container>
       <form onSubmit={handleSubmit}>
