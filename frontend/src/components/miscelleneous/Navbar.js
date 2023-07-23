@@ -133,12 +133,7 @@ function Navbar() {
                         )}
                     </Menu>
                 </Toolbar>
-                {isChatbotOpen && (
-                <div className="chatbot-popup">
-                    <Chatbot></Chatbot>
-                 </div>
-                )}
-
+                {isChatbotOpen && <Chatbot/>}
             </AppBar>
             
             <Drawer anchor="left" open={isDrawerOpen} onClose={handleDrawerClose}>
