@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
 	Table,
@@ -12,16 +12,18 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/system';
 import axios from 'axios';
-const StyledButton = styled(Button)(({ theme, ready }) => ({
+import { WebSocketContext } from '../WebSocketContext/WebSocketProvider';
+
+const StyledButton = styled(Button)(({ theme, isready }) => ({
 	color: '#fff',
-	background: ready ? '#4caf50' : '#f44336',
+	background: isready === 'true' ? '#4caf50' : '#f44336',
 	'&:hover': {
-		background: ready ? '#45a049' : '#d32f2f',
+		background: isready === 'true' ? '#45a049' : '#d32f2f',
 	},
 }));
 
-const StatusBox = styled(Box)(({ theme, ready }) => ({
-	color: ready ? '#4caf50' : '#f44336',
+const StatusBox = styled(Box)(({ theme, isready }) => ({
+	color: isready === 'true' ? '#4caf50' : '#f44336',
 	padding: '6px 16px',
 	borderRadius: '4px',
 	display: 'inline-block',
@@ -47,11 +49,14 @@ const TeamMembers = () => {
 	const [teamData, setTeamData] = useState(null);
 	const [teamMembers, setTeamMembers] = useState([]);
 	const [teamReady, setTeamReady] = useState(false);
-	const currentUserString = sessionStorage.getItem('currentUser');
-	const currentUser = JSON.parse(currentUserString);
 	const navigate = useNavigate();
 
-	const currentPlayerId = currentUser ? currentUser.email : null;
+	const sessionUserString = sessionStorage.getItem('currentUser');
+	const sessionUser = JSON.parse(sessionUserString);
+	const currentPlayerId = sessionUser ? sessionUser.email : null;
+	const foundUser = teamMembers.find(
+		(member) => member.userEmail === currentPlayerId
+	);
 
 	const fetchTeamMembers = async () => {
 		try {
@@ -81,16 +86,27 @@ const TeamMembers = () => {
 	};
 	// console.log('checkTeamReady', checkTeamReady());
 
+	const { webSocket, message } = useContext(WebSocketContext);
+
 	useEffect(() => {
 		const timer = setInterval(() => {
 			fetchTeamMembers();
 			checkTeamReady();
 		}, 3000);
 
+		if (message && message.action === 'GAME_STARTED') {
+			// navigate('/Quiz');
+		}
+		if (message && message.action === 'FIRST_QUESTION') {
+			console.log('message', message);
+			navigate('/Quiz', { state: { message: message } });
+			// navigate('/Quiz');
+		}
+
 		return () => {
 			clearInterval(timer);
 		};
-	}, []);
+	}, [message]);
 
 	const handleReadyToggle = async (userEmail) => {
 		if (userEmail === currentPlayerId) {
@@ -125,20 +141,15 @@ const TeamMembers = () => {
 	};
 
 	const handleStartGame = async () => {
-		try {
-			const response = await axios.post(
-				'https://kc52nbc66j.execute-api.us-east-1.amazonaws.com/dev/start',
-				{
-					teamId: teamId,
-					gameId: gameId, // replace with the actual game ID
-				}
-			);
-			const data = response.data;
-			console.log(data);
-			navigate('/Quiz');
-		} catch (error) {
-			console.error('Error starting the game:', error);
-		}
+		const message = {
+			action: 'startGame',
+			data: {
+				teamId: teamId,
+				gameId: gameId,
+			},
+		};
+		webSocket.send(JSON.stringify(message));
+		// navigate('/Quiz');
 	};
 
 	if (!teamMembers.length) {
@@ -173,12 +184,14 @@ const TeamMembers = () => {
 												? 'contained'
 												: 'outlined'
 										}
-										ready={member.ready}
+										isready={member.ready.toString()}
 									>
 										{member.ready ? 'Ready' : 'Not Ready'}
 									</StyledButton>
 								) : (
-									<StatusBox ready={member.ready}>
+									<StatusBox
+										isready={member.ready.toString()}
+									>
 										<Typography variant='button'>
 											{member.ready
 												? 'Ready'
@@ -193,7 +206,7 @@ const TeamMembers = () => {
 			</Table>
 			<StartButton
 				variant='contained'
-				disabled={!teamReady || currentUser.role !== 'admin'}
+				disabled={!teamReady || foundUser.userRole !== 'admin'}
 				onClick={handleStartGame}
 			>
 				Start
