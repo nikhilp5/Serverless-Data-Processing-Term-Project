@@ -10,6 +10,7 @@ export const quizSlice = createSlice({
 		totalQuestions: 0,
 		currentQuestion: {},
 		currentQuestionIndex: 0,
+		isQuestionLoading: false,
 	},
 	reducers: {
 		setQuiz: (state, action) => {
@@ -42,6 +43,9 @@ export const quizSlice = createSlice({
 		setCurrentQuestionIndex: (state, action) => {
 			state.currentQuestionIndex = action.payload;
 		},
+		setIsQuestionLoading: (state, action) => {
+			state.isQuestionLoading = action.payload;
+		},
 		resetQuiz: (state) => {
 			state.gameId = '';
 			state.questions = [];
@@ -62,6 +66,7 @@ export const {
 	setTotalQuestions,
 	setCurrentQuestionIndex,
 	resetQuiz,
+	setIsQuestionLoading,
 } = quizSlice.actions;
 
 export default quizSlice.reducer;

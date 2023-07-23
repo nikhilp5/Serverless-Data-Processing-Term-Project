@@ -32,6 +32,7 @@ export default ({ children }) => {
 						nextResponder: message.data.nextResponder,
 						currentQuestion: message.data.question,
 						currentQuestionIndex: message.data.questionIndex,
+						isQuestionLoading: false,
 					})
 				);
 			}
