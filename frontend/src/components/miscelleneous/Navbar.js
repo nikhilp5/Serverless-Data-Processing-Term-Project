@@ -66,12 +66,7 @@ function Navbar() {
                         <MenuItem onClick={handleLogout}>Log Out</MenuItem>
                     </Menu>
                 </Toolbar>
-                {isChatbotOpen && (
-                <div className="chatbot-popup">
-                    <Chatbot></Chatbot>
-                 </div>
-                )}
-
+                {isChatbotOpen && <Chatbot/>}
             </AppBar>
             
             <Drawer anchor="left" open={isDrawerOpen} onClose={handleDrawerClose}>
