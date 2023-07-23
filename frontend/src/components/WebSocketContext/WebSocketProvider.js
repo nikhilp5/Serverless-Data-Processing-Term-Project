@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { json } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setQuiz, updateQuiz } from '../../redux/quizSlice';
+import { useNavigate } from 'react-router-dom';
 
 export const WebSocketContext = React.createContext(null);
 
@@ -8,11 +10,35 @@ export default ({ children }) => {
 	const [webSocket, setWebSocket] = useState(null);
 	const [message, setMessage] = useState(null);
 	const wsApi = 'wss://rireb5nnb2.execute-api.us-east-1.amazonaws.com/dev';
+	const dispatch = useDispatch();
+	const navigate = useNavigate();
 
-	const handleMessage = useCallback((messageEvent) => {
-		const data = messageEvent.data;
-		setMessage(JSON.parse(data));
-	}, []);
+	const handleMessage = useCallback(
+		(messageEvent) => {
+			const message = JSON.parse(messageEvent.data);
+			console.log('Got Message!');
+			console.log('message: ', message);
+
+			if (message && message.action === 'FIRST_QUESTION') {
+				console.log('FIRST_QUESTION.data', message.data);
+				dispatch(setQuiz(message.data));
+				navigate('/Quiz');
+			}
+
+			if (message && message.action === 'NEXT_QUESTION') {
+				console.log('NEXT_QUESTION.data', message.data);
+				dispatch(
+					updateQuiz({
+						nextResponder: message.data.nextResponder,
+						currentQuestion: message.data.question,
+						currentQuestionIndex: message.data.questionIndex,
+					})
+				);
+			}
+		},
+		[dispatch]
+	);
+
 	useEffect(() => {
 		ws.current = new WebSocket(wsApi);
 

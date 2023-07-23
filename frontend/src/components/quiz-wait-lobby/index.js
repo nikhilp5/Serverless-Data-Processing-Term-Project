@@ -9,10 +9,12 @@ import {
 	Button,
 	Typography,
 	Box,
+	CircularProgress,
 } from '@mui/material';
 import { styled } from '@mui/system';
 import axios from 'axios';
 import { WebSocketContext } from '../WebSocketContext/WebSocketProvider';
+import { useDispatch, useSelector } from 'react-redux';
 
 const StyledButton = styled(Button)(({ theme, isready }) => ({
 	color: '#fff',
@@ -44,16 +46,19 @@ const StartButton = styled(Button)(({ theme }) => ({
 
 const TeamMembers = () => {
 	const teamId = 'team-1689466532241';
-	const gameId = '033c70b0-22e2-x0x0-898b-dfc6867500b6';
+	const gameId = '033c70b0-22e2-11ee-898b-dfc6867500b6';
 
 	const [teamData, setTeamData] = useState(null);
 	const [teamMembers, setTeamMembers] = useState([]);
 	const [teamReady, setTeamReady] = useState(false);
-	const navigate = useNavigate();
+	const [isLoading, setIsLoading] = useState(false);
 
 	const sessionUserString = sessionStorage.getItem('currentUser');
 	const sessionUser = JSON.parse(sessionUserString);
 	const currentPlayerId = sessionUser ? sessionUser.email : null;
+
+	const dispatch = useDispatch();
+
 	const foundUser = teamMembers.find(
 		(member) => member.userEmail === currentPlayerId
 	);
@@ -94,15 +99,16 @@ const TeamMembers = () => {
 			checkTeamReady();
 		}, 3000);
 
-		if (message && message.action === 'GAME_STARTED') {
-			// navigate('/Quiz');
-		}
+		// if (message && message.action === 'GAME_STARTED') {
+		// 	// navigate('/Quiz');
+		// }
+		// if (message && message.action === 'FIRST_QUESTION') {
+		// 	navigate('/Quiz', { state: { message: message } });
+		// 	// navigate('/Quiz');
+		// }
 		if (message && message.action === 'FIRST_QUESTION') {
-			console.log('message', message);
-			navigate('/Quiz', { state: { message: message } });
-			// navigate('/Quiz');
+			setIsLoading(false);
 		}
-
 		return () => {
 			clearInterval(timer);
 		};
@@ -141,15 +147,15 @@ const TeamMembers = () => {
 	};
 
 	const handleStartGame = async () => {
-		const message = {
-			action: 'startGame',
+		setIsLoading(true);
+		const request = {
+			action: 'START_GAME',
 			data: {
 				teamId: teamId,
 				gameId: gameId,
 			},
 		};
-		webSocket.send(JSON.stringify(message));
-		// navigate('/Quiz');
+		webSocket.send(JSON.stringify(request));
 	};
 
 	if (!teamMembers.length) {
@@ -209,7 +215,11 @@ const TeamMembers = () => {
 				disabled={!teamReady || foundUser.userRole !== 'admin'}
 				onClick={handleStartGame}
 			>
-				Start
+				{isLoading ? (
+					<CircularProgress color='inherit' size={24} />
+				) : (
+					'Start'
+				)}
 			</StartButton>
 		</div>
 	);
