@@ -1,4 +1,4 @@
-import { Box, Button, Typography, FormControlLabel, Checkbox, Card, CardContent } from '@mui/material';
+import { Box, Button, Typography, Card, CardContent } from '@mui/material';
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -8,7 +8,6 @@ function TeamWelcomePage() {
   const navigate = useNavigate();
   const [userTeams, setUserTeams] = useState([]);
   const [currentUserEmail, setCurrentUserEmail] = useState('');
-  const [notificationEnabled, setNotificationEnabled] = useState(false);
   const { currentUser } = useContext(AuthContext);
   const { isAuthenticated } = useContext(AuthContext);
 
@@ -43,7 +42,7 @@ function TeamWelcomePage() {
         }
       );
       alert('Team created successfully!');
-      alert('Please check your inbox/spam and confirm subscription for team notifications!')
+      alert('Please check your inbox/spam and confirm subscriptions for team & individual notifications!')
       window.location.reload();
     } catch (error) {
       console.error('Error creating team:', error);
@@ -52,27 +51,6 @@ function TeamWelcomePage() {
 
   const viewTeam = (teamId) => {
     navigate('/teamOperations', { state: { teamId: teamId } });
-  };
-
-  const handleNotificationChange = async (event) => {
-    const { checked } = event.target;
-    setNotificationEnabled(checked);
-
-    try {
-        if (checked) {
-          // Make a POST request when the checkbox is checked
-          const response = await axios.post('https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/sns-topic', { inviteEmail: currentUserEmail });
-          console.log("This is responseeeeeeeeee", response)
-          alert('Please confirm the email subscription in your registered email inbox/spam. Thanks!')
-          //console.log('Notification enabled and POST request sent.');
-        } else {
-          // Perform any necessary actions when the checkbox is unchecked
-          console.log('Notification disabled.');
-        }
-    }
-    catch (error) {
-        console.log(error.message)
-    } 
   };
 
   return (
@@ -90,12 +68,6 @@ function TeamWelcomePage() {
           </Button>
         </Box>
       </Box>
-      <Box mt={4} textAlign="center">
-        <FormControlLabel
-          control={<Checkbox checked={notificationEnabled} onChange={handleNotificationChange} />}
-          label="Enable notification if you want others to invite you to their team"
-        />
-      </Box>
       <Box width="50%">
         <Box mb={2}>
           <Typography variant="h6" align="center" gutterBottom>
@@ -112,20 +84,6 @@ function TeamWelcomePage() {
             </CardContent>
           </Card>
         ))}
-        {/* <Typography variant="body1" align="center">
-          Team Name: {teamName}
-        </Typography>
-        <Box mt={2} textAlign="center">
-          <Button variant="contained" onClick={viewTeam}>
-            View Team
-          </Button>
-        </Box>
-        <Box mt={2} textAlign="center">
-          <FormControlLabel
-            control={<Checkbox checked={teamNotificationsEnabled} onChange={handleTeamNotificationChange} />}
-            label="Click for your team's notifications"
-          />
-        </Box> */}
       </Box>
     </Box>
     :
