@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from "../../services/AuthContext";
 
 function TeamOperations() {
+    //const { currentUser } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const [teamName, setTeamName] = useState('');
@@ -123,10 +124,6 @@ function TeamOperations() {
         } 
     }, [teamId, currentUserEmail, currentUser, isAuthenticated]);
 
-    const navigateToInviteTeamMembers = () => {
-        navigate('/inviteTeam', { state: { teamId: teamId, teamName: teamName } });
-    };
-    
         return (
             isAuthenticated ?
             <Box mt={5}>
@@ -180,7 +177,7 @@ function TeamOperations() {
             </Grid>
             </Box>
             <Box mt={5} mb={5} display="flex" justifyContent="center" alignItems="flex-end" gap={2}>
-            <Button variant="contained" color="success" onClick={navigateToInviteTeamMembers} disabled={currentUserRole === "member"}>
+            <Button variant="contained" color="success" onClick={openInviteDialog} disabled={currentUserRole === "member"}>
                 Invite Others
             </Button>
                 <Button variant="contained" color='warning' onClick={viewTeamStatistics}>
@@ -190,7 +187,7 @@ function TeamOperations() {
                     Leave Team
                 </Button>
             </Box>
-            {/* <Dialog open={inviteDialogOpen} onClose={closeInviteDialog}>
+            <Dialog open={inviteDialogOpen} onClose={closeInviteDialog}>
                 <DialogTitle>Invite Others</DialogTitle>
                     <DialogContent>
                         <TextField label="Email Address" value={inviteEmail} onChange={handleInviteEmailChange} fullWidth />
@@ -204,7 +201,7 @@ function TeamOperations() {
                             Send Invite
                         </Button>
                     </DialogActions>
-            </Dialog> */}
+            </Dialog>
         </Box>
         :
         <div>Please login to access this page.</div>

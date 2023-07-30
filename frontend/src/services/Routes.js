@@ -7,7 +7,6 @@ import UserStats from '../components/profile-management/UserStats';
 import LandingPage from '../components/miscelleneous/LandingPage';
 import TeamWelcomePage from '../components/team-management/TeamWelcomePage';
 import Quiz from '../components/quiz';
-import InviteTeamMembers from '../components/team-management/InviteTeamMembers';
 
 const Routes = () => {
 	return (
@@ -16,7 +15,6 @@ const Routes = () => {
 			<Route path='/SignIn' element={<SignIn />} />
 			<Route path='/welcomeTeamPage' element={<TeamWelcomePage />} />
 			<Route path='/TeamOperations' element={<TeamOperations />} />
-			<Route path='/inviteTeam' element={<InviteTeamMembers />} />
 			<Route path='/SecurityForm' element={<SecurityForm />} />
 			<Route path='/Profile' element={<Profile />} />
 			<Route path='/UserStats' element={<UserStats />} />
