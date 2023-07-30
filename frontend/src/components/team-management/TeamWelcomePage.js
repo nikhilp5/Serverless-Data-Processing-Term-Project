@@ -1,4 +1,4 @@
-import { Box, Button, Typography, FormControlLabel, Checkbox, Card, CardContent } from '@mui/material';
+import { Box, Button, Typography, Card, CardContent } from '@mui/material';
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -10,19 +10,12 @@ function TeamWelcomePage() {
   const [currentUserEmail, setCurrentUserEmail] = useState('');
   const { currentUser } = useContext(AuthContext);
   const { isAuthenticated } = useContext(AuthContext);
-  const [notificationEnabled, setNotificationEnabled] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
       setCurrentUserEmail(currentUser.email);
-      const savedState = localStorage.getItem(`notificationEnabled_${currentUser.email}`);
-      setNotificationEnabled(savedState ? JSON.parse(savedState) : false);
     }
   }, [currentUser, isAuthenticated]);
-
-  useEffect(() => {
-    localStorage.setItem(`notificationEnabled_${currentUserEmail}`, JSON.stringify(notificationEnabled));
-  }, [notificationEnabled, currentUserEmail]);
 
   useEffect(() => {
     if (currentUserEmail) {
@@ -49,7 +42,6 @@ function TeamWelcomePage() {
         }
       );
       alert('Team created successfully!');
-      alert('Please check your inbox/spam and confirm subscription for team notifications!')
       window.location.reload();
     } catch (error) {
       console.error('Error creating team:', error);
@@ -58,26 +50,6 @@ function TeamWelcomePage() {
 
   const viewTeam = (teamId) => {
     navigate('/teamOperations', { state: { teamId: teamId } });
-  };
-
-  const handleNotificationChange = async (event) => {
-    const { checked } = event.target;
-    setNotificationEnabled(checked);
-    try {
-        if (checked) {
-          // Make a POST request when the checkbox is checked
-          const response = await axios.post('https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/sns-topic', { inviteEmail: currentUserEmail });
-          console.log("This is responseeeeeeeeee", response)
-          alert('Please confirm the email subscription in your registered email inbox/spam. Thanks!')
-          //console.log('Notification enabled and POST request sent.');
-        } else {
-          // Perform any necessary actions when the checkbox is unchecked
-          console.log('Notification disabled.');
-        }
-    }
-    catch (error) {
-        console.log(error.message)
-    } 
   };
 
   return (
@@ -94,12 +66,6 @@ function TeamWelcomePage() {
             Create Team
           </Button>
         </Box>
-      </Box>
-      <Box mt={4} textAlign="center">
-        <FormControlLabel
-          control={<Checkbox checked={notificationEnabled} onChange={handleNotificationChange} />}
-          label="Enable notification if you want others to invite you to their team"
-        />
       </Box>
       <Box width="50%">
         <Box mb={2}>
