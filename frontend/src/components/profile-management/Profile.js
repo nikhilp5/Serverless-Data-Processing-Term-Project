@@ -146,8 +146,12 @@ const Profile = () => {
     navigate('/UserStats')
   };
 
+  const viewTeams = () => {
+    navigate("/welcomeTeamPage");
+};
+
   return isAuthenticated ? (
-    <Grid container spacing={2} justifyContent="center" align="center">
+    <Grid container spacing={2} mb={3} justifyContent="center" align="center">
       <Grid item xs={12}>
         <Typography variant="h4">Profile</Typography>
       </Grid>
@@ -201,7 +205,7 @@ const Profile = () => {
         />
       </Grid>
       <Grid item xs={12}>
-        <Button variant="contained" color="primary" onClick={handleSaveChanges}>
+        <Button variant="contained" style={{ backgroundColor: 'green', color: 'white' }} onClick={handleSaveChanges}>
           Save Profile Changes
         </Button>
         {profileUpdateResponse && <h6>{profileUpdateResponse}</h6>}
@@ -220,18 +224,23 @@ const Profile = () => {
       {!isNewUser && (
         <>
           <Grid item xs={12}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleViewStats}
-            >
+            <Button variant="contained" style={{ backgroundColor: 'yellow', color: 'black' }} onClick={handleViewStats}>
               View statistics
             </Button>
           </Grid>
           <Grid item xs={12}>
             <Button
               variant="contained"
-              color="primary"
+              style={{ backgroundColor: 'red', color: 'white' }}
+              onClick={viewTeams}
+            >
+              View Teams
+            </Button>
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              style={{ backgroundColor: 'orange', color: 'black' }}
               onClick={handleSaveChanges}
             >
               Leaderboard

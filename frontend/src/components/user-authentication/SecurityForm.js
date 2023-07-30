@@ -115,11 +115,11 @@ const SecurityForm = () => {
   return (
     <div>
       {isNewUser ? (
-        <Typography variant="h3" component="h3" align="center">
+        <Typography variant="h6" component="h3" align="center">
           You are a new user: Please answer these security questions.
         </Typography>
       ) : (
-        <Typography variant="h3" component="h3" align="center">
+        <Typography variant="h6" component="h3" align="center">
           You are an existing user: Please answer the security questions.
         </Typography>
       )
