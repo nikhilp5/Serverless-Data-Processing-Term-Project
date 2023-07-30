@@ -8,15 +8,21 @@ function TeamWelcomePage() {
   const navigate = useNavigate();
   const [userTeams, setUserTeams] = useState([]);
   const [currentUserEmail, setCurrentUserEmail] = useState('');
-  const [notificationEnabled, setNotificationEnabled] = useState(false);
   const { currentUser } = useContext(AuthContext);
   const { isAuthenticated } = useContext(AuthContext);
+  const [notificationEnabled, setNotificationEnabled] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
       setCurrentUserEmail(currentUser.email);
+      const savedState = localStorage.getItem(`notificationEnabled_${currentUser.email}`);
+      setNotificationEnabled(savedState ? JSON.parse(savedState) : false);
     }
   }, [currentUser, isAuthenticated]);
+
+  useEffect(() => {
+    localStorage.setItem(`notificationEnabled_${currentUserEmail}`, JSON.stringify(notificationEnabled));
+  }, [notificationEnabled, currentUserEmail]);
 
   useEffect(() => {
     if (currentUserEmail) {
@@ -57,7 +63,6 @@ function TeamWelcomePage() {
   const handleNotificationChange = async (event) => {
     const { checked } = event.target;
     setNotificationEnabled(checked);
-
     try {
         if (checked) {
           // Make a POST request when the checkbox is checked
@@ -112,20 +117,6 @@ function TeamWelcomePage() {
             </CardContent>
           </Card>
         ))}
-        {/* <Typography variant="body1" align="center">
-          Team Name: {teamName}
-        </Typography>
-        <Box mt={2} textAlign="center">
-          <Button variant="contained" onClick={viewTeam}>
-            View Team
-          </Button>
-        </Box>
-        <Box mt={2} textAlign="center">
-          <FormControlLabel
-            control={<Checkbox checked={teamNotificationsEnabled} onChange={handleTeamNotificationChange} />}
-            label="Click for your team's notifications"
-          />
-        </Box> */}
       </Box>
     </Box>
     :
