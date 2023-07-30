@@ -1,7 +1,16 @@
-const AWS = require('aws-sdk');
+// Author: Shubham Mishra
 
+/***************************************************************************************
+*    Code Reference: Getting started with DynamoDB and the AWS SDKs
+*    Author: AWS
+*    Availability: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.html
+***************************************************************************************/
+
+// Import AWS SDK and create a DynamoDB DocumentClient instance
+const AWS = require('aws-sdk');
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
+// Lambda handler function
 exports.handler = async (event) => {
   const functionName = event.functionName;
   if (functionName === 'checkUserExists') {
@@ -11,6 +20,7 @@ exports.handler = async (event) => {
   }
 };
 
+// Function to check if the user exists in the DynamoDB table
 async function checkUserExists(event) {
   const userId = event.userId; 
   const params = {
@@ -25,11 +35,13 @@ async function checkUserExists(event) {
     const item = response.Item;
 
     if (!item) {
+      // User not found in DynamoDB
       return {
         statusCode: 200,
         body: JSON.stringify({ newUser: true }),
       };
     } else {
+      // User found in DynamoDB
       return {
         statusCode: 200,
         body: JSON.stringify({ newUser: false }),
@@ -44,6 +56,7 @@ async function checkUserExists(event) {
   }
 }
 
+// Function to check if the provided security answers match the ones in DynamoDB
 async function checkSecurityAnswers(event) {
   const userId = event.userId; 
   const answers = event.securityAnswers;

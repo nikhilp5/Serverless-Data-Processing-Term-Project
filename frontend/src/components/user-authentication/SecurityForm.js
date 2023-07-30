@@ -1,3 +1,5 @@
+// Author: [Shubham Mishra]
+
 import React, { useState, useContext, useEffect } from "react";
 import { TextField, Grid, Button, Typography, Container } from "@mui/material";
 import firebase from "firebase/compat/app";
@@ -9,6 +11,7 @@ const securityAPIEndpoint = 'https://km0vkw6jt0.execute-api.us-east-1.amazonaws.
 
 const SecurityForm = () => {
 
+  // State variables
   const navigate = useNavigate();
 
   const securityQuestions = [
@@ -23,12 +26,14 @@ const SecurityForm = () => {
   const [isNewUser, setIsNewUser] = useState(false);
   const { currentUser } = useContext(AuthContext);
 
+  // Fetch user data from the server when the component mounts or user authentication changes
   useEffect(() => {
     if (currentUser) {
       checkIfuserExists(currentUser.uid)
     }
   }, [currentUser]);
 
+  // Function to check if the user exists in the database
   const checkIfuserExists = async (userId) => {
     const requestData = {
       userId,
@@ -38,8 +43,8 @@ const SecurityForm = () => {
       const response = await axios.post(securityAPIEndpoint, requestData);
       const result = response.data;
       const body = JSON.parse(result.body);
-      console.log("result-------", result);
-      console.log("body-------", body);
+      console.log("result=", result);
+      console.log("body=", body);
   
       if (result.statusCode === 200) {
         handleSetAuthDone();
@@ -55,11 +60,13 @@ const SecurityForm = () => {
     }
   }
 
+  // Function to set the second factor authentication as done
   const handleSetAuthDone = () => {
     localStorage.setItem('isSecondFactorAuthDone', JSON.stringify(true));
     setIsSecondFactorAuthDone(true);
   };
 
+  // Function to handle changes in the security answer input fields
   const handleChange = (event, index) => {
     const { value } = event.target;
     setAnswers((prevAnswers) => {
@@ -69,6 +76,7 @@ const SecurityForm = () => {
     });
   };
   
+  // Function to invoke the second factor authentication Lambda function
   const invokesecondFactorAuthLambda = async (userId) => {
     const requestData = {
       userId,
@@ -80,8 +88,8 @@ const SecurityForm = () => {
       const response = await axios.post(securityAPIEndpoint, requestData);
       const result = response.data;
       const body = JSON.parse(result.body);
-      console.log("result-------", result);
-      console.log("body-------", body);
+      console.log("result=", result);
+      console.log("body=", body);
   
       if (result.statusCode === 200) {
         handleSetAuthDone();
@@ -103,7 +111,7 @@ const SecurityForm = () => {
     }
   };
   
-
+  // Function to handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
   
@@ -114,6 +122,7 @@ const SecurityForm = () => {
 
   return (
     <div>
+      {/* Display different heading based on whether the user is new or existing */}
       {isNewUser ? (
         <Typography variant="h6" component="h3" align="center">
           You are a new user: Please answer these security questions.
@@ -126,6 +135,7 @@ const SecurityForm = () => {
       }
       <br></br>
       <Container>
+      {/* Security Questions Form */}
       <form onSubmit={handleSubmit}>
         <Grid container spacing={2} justifyContent="center" alignItems="center">
           {securityQuestions.map((question, index) => (

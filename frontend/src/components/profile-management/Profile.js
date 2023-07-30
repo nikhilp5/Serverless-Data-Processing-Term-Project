@@ -1,11 +1,14 @@
+// Author: [Shubham Mishra]
+
 import React, { useState, useContext, useEffect } from "react";
-import { Grid, Typography, Avatar, TextField, Button, Input } from "@mui/material";
-import { useNavigate, Navigate, useLocation } from "react-router-dom";
+import { Grid, Typography, TextField, Button } from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../services/AuthContext";
 import axios from 'axios';
 
 
 const Profile = () => {
+  // State to manage user profile data and UI messages
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [contactNumber, setContactNumber] = useState("");
@@ -21,6 +24,7 @@ const Profile = () => {
 
   const profileAPIEndpoint = 'https://km0vkw6jt0.execute-api.us-east-1.amazonaws.com/test/profile';
   
+  // Function to fetch user's profile data from the server
   const fetchProfile = async () => {
     try {
       const payload = {
@@ -29,19 +33,17 @@ const Profile = () => {
       };
     
       const response = await axios.post(profileAPIEndpoint, payload);
-      console.log('response=====', response);
+      console.log('response=', response);
       const data = response.data;
-      console.log('-------lambda-----------');
 
       if (data.statusCode === 200) {
         const profileData = JSON.parse(data.body);
 
         setName(profileData.name);
         setContactNumber(profileData.contactNumber);
-          console.log('image-----',profileData.image);
+          console.log('image=',profileData.image);
           setProfilePicture(profileData.image);
           setProfilePictureFile(null);
-        console.log('-------lambda-200----------');
       } else {
         console.error("Error fetching profile data");
       }
@@ -52,26 +54,30 @@ const Profile = () => {
   };
 
   useEffect(() => {
+    // Fetch user's profile data when the component mounts or user authentication changes
     if (currentUser) {
-      console.log('-------hi-----------');
       fetchProfile();
     }
   }, [currentUser, isAuthenticated]);
 
+  // Function to handle changes in the name field
   const handleNameChange = (e) => {
     setError("");
     setName(e.target.value);
   };
 
+  // Function to handle changes in the contact number field
   const handleContactNumberChange = (e) => {
     setContactNumber(e.target.value);
   };
 
+  // Function to handle changes in the profile picture input
   const handleProfilePictureChange = (e) => {
     const file = e.target.files[0];
     setProfilePictureFile(file);
   };
 
+  // Function to save profile changes to the server
   const handleSaveChanges = async () => {
     if (name.trim() === "") {
       setError("Name cannot be blank.");
@@ -142,15 +148,18 @@ const Profile = () => {
     }
   };
 
+  // Function to navigate to view user statistics
   const handleViewStats = () => {
     navigate('/UserStats')
   };
 
+  // Function to navigate to teams page
   const viewTeams = () => {
     navigate("/welcomeTeamPage");
 };
 
   return isAuthenticated ? (
+    // JSX for displaying the user's profile form
     <Grid container spacing={2} mb={3} justifyContent="center" align="center">
       <Grid item xs={12}>
         <Typography variant="h4">Profile</Typography>
@@ -250,6 +259,7 @@ const Profile = () => {
       )}
     </Grid>
   ) : (
+    // JSX to display a message if the user is not logged in
     <div>Please login to access this page.</div>
   );
 };
