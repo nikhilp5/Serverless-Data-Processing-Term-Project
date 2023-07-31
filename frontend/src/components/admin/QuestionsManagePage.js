@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import TablePagination from "@mui/material/TablePagination";
 import axios from "axios";
-import uuid from "node-uuid";
+import { v1 as uuid } from "uuid";
 
 const containerStyle = {
   marginBottom: "16px",
@@ -118,7 +118,7 @@ const QuestionsManagePage = () => {
   };
 
   const handleAddQuestion = () => {
-    let questionID = uuid.v1();
+    let questionID = uuid();
     let keyAddedValue = newQuestion;
     keyAddedValue.questionID = questionID;
     axios
