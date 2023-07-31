@@ -1,15 +1,17 @@
 import Navbar from './components/miscelleneous/Navbar';
-import Routes from './services/Routes'
+import Routes from './services/Routes';
 import { AuthProvider } from './services/AuthContext';
-
+import WebSocketProvider from './components/WebSocketContext/WebSocketProvider';
 
 function App() {
-  return (
-    <AuthProvider>
-      <Navbar />
-      <Routes />
-    </AuthProvider>
-  );
+	return (
+		<WebSocketProvider>
+			<AuthProvider>
+				<Navbar />
+				<Routes />
+			</AuthProvider>
+		</WebSocketProvider>
+	);
 }
 
 export default App;
