@@ -6,7 +6,7 @@ WORKDIR /app
 # Utilise Docker cache to save re-installing dependencies if unchanged
 COPY package*.json ./
 # Install app dependencies
-RUN npm install
+RUN npm install --legacy-peer-deps
 # Bundle app source inside Docker image
 COPY . .
 # Make port 3000 available to the outside

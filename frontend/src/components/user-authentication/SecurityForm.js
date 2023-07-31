@@ -1,22 +1,17 @@
-import React, { useState } from "react";
-import { TextField, Grid, Button, Typography } from "@mui/material";
+// Author: [Shubham Mishra]
+
+import React, { useState, useContext, useEffect } from "react";
+import { TextField, Grid, Button, Typography, Container } from "@mui/material";
 import firebase from "firebase/compat/app";
-import AWS from "aws-sdk";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from '../../services/AuthContext';
+import axios from 'axios';
 
-const AWS_CONFIG = {
-  "region": process.env.REACT_APP_AWS_REGION,
-  "accessKeyId": process.env.REACT_APP_AWS_ACCESS_KEY,
-  "secretAccessKey": process.env.REACT_APP_AWS_SECRET_KEY,
-  "sessionToken": process.env.REACT_APP_AWS_SESSION_TOKEN,
-};
-
-AWS.config.update(AWS_CONFIG);
-
-const lambda = new AWS.Lambda({ region: process.env.REACT_APP_AWS_REGION });
+const securityAPIEndpoint = 'https://km0vkw6jt0.execute-api.us-east-1.amazonaws.com/test/security';
 
 const SecurityForm = () => {
 
+  // State variables
   const navigate = useNavigate();
 
   const securityQuestions = [
@@ -27,7 +22,51 @@ const SecurityForm = () => {
 
   const [securityAnswers, setAnswers] = useState(securityQuestions.map(() => ""));
   const [error, setError] = useState("");
+  const { setIsSecondFactorAuthDone } = useContext(AuthContext);
+  const [isNewUser, setIsNewUser] = useState(false);
+  const { currentUser } = useContext(AuthContext);
 
+  // Fetch user data from the server when the component mounts or user authentication changes
+  useEffect(() => {
+    if (currentUser) {
+      checkIfuserExists(currentUser.uid)
+    }
+  }, [currentUser]);
+
+  // Function to check if the user exists in the database
+  const checkIfuserExists = async (userId) => {
+    const requestData = {
+      userId,
+      functionName: "checkUserExists"
+    };
+    try {
+      const response = await axios.post(securityAPIEndpoint, requestData);
+      const result = response.data;
+      const body = JSON.parse(result.body);
+      console.log("result=", result);
+      console.log("body=", body);
+  
+      if (result.statusCode === 200) {
+        handleSetAuthDone();
+        if (body.newUser) {
+          setIsNewUser(true);
+        } else{
+          setIsNewUser(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error invoking Lambda function:', error);
+      setError('Some error occured. Please try again');
+    }
+  }
+
+  // Function to set the second factor authentication as done
+  const handleSetAuthDone = () => {
+    localStorage.setItem('isSecondFactorAuthDone', JSON.stringify(true));
+    setIsSecondFactorAuthDone(true);
+  };
+
+  // Function to handle changes in the security answer input fields
   const handleChange = (event, index) => {
     const { value } = event.target;
     setAnswers((prevAnswers) => {
@@ -37,18 +76,28 @@ const SecurityForm = () => {
     });
   };
   
+  // Function to invoke the second factor authentication Lambda function
   const invokesecondFactorAuthLambda = async (userId) => {
-    const params = {
-      FunctionName: 'secondFactorAuthentication',
-      Payload: JSON.stringify({ userId, securityAnswers: securityAnswers }),
+    const requestData = {
+      userId,
+      securityAnswers: securityAnswers,
+      functionName: "checkSecurityAnswers"
     };
   
     try {
-      const response = await lambda.invoke(params).promise();
-      const result = JSON.parse(response.Payload);
+      const response = await axios.post(securityAPIEndpoint, requestData);
+      const result = response.data;
+      const body = JSON.parse(result.body);
+      console.log("result=", result);
+      console.log("body=", body);
   
       if (result.statusCode === 200) {
-        navigate("/welcome");
+        handleSetAuthDone();
+        if (body.newUser) {
+          navigate("/profile?isNewUser=true");
+        } else{
+          navigate("/welcomeTeamPage");
+        }
       } else if (result.statusCode === 400){
           setError('Security answers do not match.');
         console.error('Lambda function execution failed');
@@ -62,7 +111,7 @@ const SecurityForm = () => {
     }
   };
   
-
+  // Function to handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
   
@@ -73,10 +122,20 @@ const SecurityForm = () => {
 
   return (
     <div>
-      <Typography variant="h3" component="h3" align="center">
-        Security Questions
-      </Typography>
+      {/* Display different heading based on whether the user is new or existing */}
+      {isNewUser ? (
+        <Typography variant="h6" component="h3" align="center">
+          You are a new user: Please answer these security questions.
+        </Typography>
+      ) : (
+        <Typography variant="h6" component="h3" align="center">
+          You are an existing user: Please answer the security questions.
+        </Typography>
+      )
+      }
       <br></br>
+      <Container>
+      {/* Security Questions Form */}
       <form onSubmit={handleSubmit}>
         <Grid container spacing={2} justifyContent="center" alignItems="center">
           {securityQuestions.map((question, index) => (
@@ -116,6 +175,7 @@ const SecurityForm = () => {
           )}
         </Grid>
       </form>
+      </Container>
     </div>
   );
 };

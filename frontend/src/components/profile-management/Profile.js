@@ -1,102 +1,109 @@
+// Author: [Shubham Mishra]
+
 import React, { useState, useContext, useEffect } from "react";
-import { Grid, Typography, Avatar, TextField, Button, Input } from "@mui/material";
-import { useNavigate, Navigate } from "react-router-dom";
+import { Grid, Typography, TextField, Button } from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../services/AuthContext";
-import AWS from "aws-sdk";
-import { convertLength } from "@mui/material/styles/cssUtils";
+import axios from 'axios';
 
-
-const AWS_CONFIG = {
-  "region": process.env.REACT_APP_AWS_REGION,
-  "accessKeyId": process.env.REACT_APP_AWS_ACCESS_KEY,
-  "secretAccessKey": process.env.REACT_APP_AWS_SECRET_KEY,
-  "sessionToken": process.env.REACT_APP_AWS_SESSION_TOKEN,
-};
-
-AWS.config.update(AWS_CONFIG);
-
-const lambda = new AWS.Lambda({ region: process.env.REACT_APP_AWS_REGION });
 
 const Profile = () => {
+  // State to manage user profile data and UI messages
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [profilePicture, setProfilePicture] = useState(null);
   const [profilePictureFile, setProfilePictureFile] = useState(null);
   const { currentUser } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
   const [profileUpdateResponse, setprofileUpdateResponse] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isProfileUpdated, setIsProfileUpdated] = useState(false);
+  const location = useLocation();
+  const isNewUser = new URLSearchParams(location.search).get('isNewUser') === 'true';
+  const [error, setError] = useState("");
 
-
+  const profileAPIEndpoint = 'https://km0vkw6jt0.execute-api.us-east-1.amazonaws.com/test/profile';
+  
+  // Function to fetch user's profile data from the server
   const fetchProfile = async () => {
     try {
-      const params = {
-        FunctionName: "profile",
-        Payload: JSON.stringify({
-          functionName: "getProfile",
-          userId: currentUser.uid,
-        }),
+      const payload = {
+        functionName: "getProfile",
+        userId: currentUser.uid,
       };
+    
+      const response = await axios.post(profileAPIEndpoint, payload);
+      console.log('response=', response);
+      const data = response.data;
 
-      const data = await lambda.invoke(params).promise();
-      console.log('-------lambda-----------');
-
-      if (data.StatusCode === 200) {
-        const profileData = JSON.parse(JSON.parse(data.Payload).body);
+      if (data.statusCode === 200) {
+        const profileData = JSON.parse(data.body);
 
         setName(profileData.name);
         setContactNumber(profileData.contactNumber);
-          console.log('image-----',profileData.image);
+          console.log('image=',profileData.image);
           setProfilePicture(profileData.image);
           setProfilePictureFile(null);
-        console.log('-------lambda-200----------');
       } else {
         console.error("Error fetching profile data");
       }
 
-      setIsLoading(false);
     } catch (error) {
       console.error("Error:", error);
-      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-
+    // Fetch user's profile data when the component mounts or user authentication changes
     if (currentUser) {
-      console.log('-------hi-----------');
       fetchProfile();
     }
-  }, [currentUser]);
+  }, [currentUser, isAuthenticated]);
 
+  // Function to handle changes in the name field
   const handleNameChange = (e) => {
+    setError("");
     setName(e.target.value);
   };
 
+  // Function to handle changes in the contact number field
   const handleContactNumberChange = (e) => {
     setContactNumber(e.target.value);
   };
 
+  // Function to handle changes in the profile picture input
   const handleProfilePictureChange = (e) => {
     const file = e.target.files[0];
     setProfilePictureFile(file);
   };
 
+  // Function to save profile changes to the server
   const handleSaveChanges = async () => {
+    if (name.trim() === "") {
+      setError("Name cannot be blank.");
+      return;
+    }
     const reader = new FileReader();
 
     reader.onload = async (event) => {
       try {
         const imageBase64 = event.target.result.split(",")[1];
-        const params = {
-          FunctionName: "profile",
-          Payload: JSON.stringify({ functionName: 'updateProfile',  userId: currentUser.uid, name, contactNumber, image: imageBase64}),
+        const payload = {
+          functionName: 'updateProfile',
+          userId: currentUser.uid,
+          email: currentUser.email,
+          name,
+          contactNumber,
+          image: imageBase64,
         };
-
-        const data = await lambda.invoke(params).promise();
-        if (data.StatusCode === 200) {
-          console.log("data.StatusCode === 200");
+      
+        const response = await axios.post(profileAPIEndpoint, payload);
+        console.log('response=====', response);
+        const data = response.data;
+        if (data.statusCode === 200) {
+          console.log("data.statusCode === 200");
           setprofileUpdateResponse('Profile successfully updated');
+          setIsProfileUpdated(true);
         } else {  
           console.log('Error in updating profile');
           setprofileUpdateResponse('Error in updating profile');
@@ -113,44 +120,58 @@ const Profile = () => {
       reader.readAsDataURL(profilePictureFile);
     } else {
       try {
-        const params = {
-          FunctionName: "profile",
-          Payload: JSON.stringify({ functionName: 'updateProfile',  userId: currentUser.uid, name, contactNumber}),
+        const payload = {
+          functionName: 'updateProfile',
+          userId: currentUser.uid,
+          email: currentUser.email,
+          name,
+          contactNumber,
         };
-
-        const data = await lambda.invoke(params).promise();
-        if (data.StatusCode === 200) {
-          console.log("data.StatusCode === 200");
+      
+        const response = await axios.post(profileAPIEndpoint, payload);
+        console.log('response=====', response);
+        const data = response.data;
+        if (data.statusCode === 200) {
+          console.log("data.statusCode === 200");
           setprofileUpdateResponse('Profile successfully updated');
+          setIsProfileUpdated(true);
         } else {  
-          console.log('Error in updating profile');
+          console.log('Error in updating profile-----');
           setprofileUpdateResponse('Error in updating profile');
         }
       } catch (error) {
         console.error("Error:", error);
-        setprofileUpdateResponse('Error in updating profile');
+        setprofileUpdateResponse('Error in updating profile-1717171');
       }
       fetchProfile();
 
     }
   };
 
+  // Function to navigate to view user statistics
   const handleViewStats = () => {
     navigate('/UserStats')
   };
 
-  return (
-    currentUser ?
-    <Grid container spacing={2} justifyContent="center" align="center" >
+  // Function to navigate to teams page
+  const viewTeams = () => {
+    navigate("/welcomeTeamPage");
+};
+
+  return isAuthenticated ? (
+    // JSX for displaying the user's profile form
+    <Grid container spacing={2} mb={3} justifyContent="center" align="center">
       <Grid item xs={12}>
         <Typography variant="h4">Profile</Typography>
       </Grid>
-      <Grid item xs={12}> 
-        {profilePicture && <img
-          src={`${profilePicture}?${Date.now()}`}
-          alt="Profile"
-          style={{ maxHeight: "100px", width: "auto" }}
-        />}
+      <Grid item xs={12}>
+        {profilePicture && (
+          <img
+            src={`${profilePicture}?${Date.now()}`}
+            alt="Profile"
+            style={{ maxHeight: "100px", width: "auto" }}
+          />
+        )}
       </Grid>
       <Grid item xs={12}>
         <input
@@ -166,23 +187,24 @@ const Profile = () => {
           </Button>
         </label>
       </Grid>
-      <Grid item xs={12}> 
-        {profilePictureFile && 
-        <div>
-        <h6>New profile picture selected</h6>
-        <img
-          src={URL.createObjectURL(profilePictureFile)}
-          alt="Profile"
-          style={{ maxHeight: "100px", width: "auto" }}
-        />
-        </div>
-        }
+      <Grid item xs={12}>
+        {profilePictureFile && (
+          <div>
+            <h6>New profile picture selected</h6>
+            <img
+              src={URL.createObjectURL(profilePictureFile)}
+              alt="Profile"
+              style={{ maxHeight: "100px", width: "auto" }}
+            />
+          </div>
+        )}
       </Grid>
       <Grid item xs={12}>
-        <TextField label="Email" value={currentUser.email || ''} disabled/>
+        <TextField label="Email" value={currentUser.email || ""} disabled />
       </Grid>
       <Grid item xs={12}>
-        <TextField label="Name" value={name} onChange={handleNameChange} />
+        <TextField label="Name*" value={name} onChange={handleNameChange} error={error !== ""}
+        helperText={error}/>
       </Grid>
       <Grid item xs={12}>
         <TextField
@@ -192,29 +214,53 @@ const Profile = () => {
         />
       </Grid>
       <Grid item xs={12}>
-        <Button variant="contained" color="primary" onClick={handleSaveChanges}>
+        <Button variant="contained" style={{ backgroundColor: 'green', color: 'white' }} onClick={handleSaveChanges}>
           Save Profile Changes
         </Button>
-        {profileUpdateResponse  && <h6>{profileUpdateResponse}</h6>}
+        {profileUpdateResponse && <h6>{profileUpdateResponse}</h6>}
       </Grid>
-      <Grid item xs={12}>
-        <Button variant="contained" color="primary" onClick={handleViewStats}>
-          View statistics
-        </Button>
-      </Grid>
-      <Grid item xs={12}>
-        <Button variant="contained" color="primary" onClick={handleSaveChanges}>
-          Manage team affiliations
-        </Button>
-      </Grid>
-      <Grid item xs={12}>
-        <Button variant="contained" color="primary" onClick={handleSaveChanges}>
-          Leaderboard
-        </Button>
-      </Grid>
+      {isProfileUpdated && (
+        <Grid item xs={12}>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => navigate("/welcomeTeamPage")}
+          >
+            Go to Home Page
+          </Button>
+        </Grid>
+      )}
+      {!isNewUser && (
+        <>
+          <Grid item xs={12}>
+            <Button variant="contained" style={{ backgroundColor: 'yellow', color: 'black' }} onClick={handleViewStats}>
+              View statistics
+            </Button>
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              style={{ backgroundColor: 'red', color: 'white' }}
+              onClick={viewTeams}
+            >
+              View Teams
+            </Button>
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              style={{ backgroundColor: 'orange', color: 'black' }}
+              onClick={handleSaveChanges}
+            >
+              Leaderboard
+            </Button>
+          </Grid>
+        </>
+      )}
     </Grid>
-    :
-      <div>Loading...</div>
+  ) : (
+    // JSX to display a message if the user is not logged in
+    <div>Please login to access this page.</div>
   );
 };
 
