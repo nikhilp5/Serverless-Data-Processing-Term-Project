@@ -47,6 +47,11 @@ export const AuthProvider = ({ children }) => {
 	// useEffect to determine if the user is authenticated based on the current user and `isSecondFactorAuthDone`
 	useEffect(() => {
 		setIsAuthenticated(currentUser !== null && isSecondFactorAuthDone);
+		if (isSecondFactorAuthDone) {
+			sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+		} else {
+			sessionStorage.removeItem('currentUser');
+		}
 	}, [currentUser, isSecondFactorAuthDone]);
 
 	// Return the AuthContext.Provider with the required values
