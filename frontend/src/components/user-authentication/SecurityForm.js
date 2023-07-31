@@ -1,7 +1,7 @@
 // Author: [Shubham Mishra]
 
 import React, { useState, useContext, useEffect } from "react";
-import { TextField, Grid, Button, Typography, Container } from "@mui/material";
+import { TextField, Grid, Button, Typography, Container, Box, FormControlLabel, Checkbox } from "@mui/material";
 import firebase from "firebase/compat/app";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../../services/AuthContext';
@@ -25,6 +25,20 @@ const SecurityForm = () => {
   const { setIsSecondFactorAuthDone } = useContext(AuthContext);
   const [isNewUser, setIsNewUser] = useState(false);
   const { currentUser } = useContext(AuthContext);
+  const [notificationEnabled, setNotificationEnabled] = useState(false);
+  const [currentUserEmail, setCurrentUserEmail] = useState('');
+
+  useEffect(() => {
+    if (currentUser) {
+      setCurrentUserEmail(currentUser.email);
+      const savedState = localStorage.getItem(`notificationEnabled_${currentUser.email}`);
+      setNotificationEnabled(savedState ? JSON.parse(savedState) : false);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    localStorage.setItem(`notificationEnabled_${currentUserEmail}`, JSON.stringify(notificationEnabled));
+  }, [notificationEnabled, currentUserEmail]);
 
   // Fetch user data from the server when the component mounts or user authentication changes
   useEffect(() => {
@@ -114,12 +128,36 @@ const SecurityForm = () => {
   // Function to handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+    // Check if the notification is enabled
+    if (!notificationEnabled) {
+      // If not, alert the user and prevent form submission
+      alert('Please check the notification box. It is mandatory! And confirm subscription in your inbox');
+      return;
+    }
     const userId = firebase.auth().currentUser.uid;  
     invokesecondFactorAuthLambda(userId);
   };
-  
 
+  const handleNotificationChange = async (event) => {
+    const { checked } = event.target;
+    setNotificationEnabled(checked);
+    try {
+        if (checked) {
+          // Make a POST request when the checkbox is checked
+          const response = await axios.post('https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/sns-topic', { inviteEmail: currentUserEmail });
+          console.log("This is responseeeeeeeeee", response)
+          alert('Please confirm the email subscription in your registered email inbox/spam. Thanks!')
+          //console.log('Notification enabled and POST request sent.');
+        } else {
+          // Perform any necessary actions when the checkbox is unchecked
+          console.log('Notification disabled.');
+        }
+    }
+    catch (error) {
+        console.log(error.message)
+    } 
+  };
+  
   return (
     <div>
       {/* Display different heading based on whether the user is new or existing */}
@@ -175,6 +213,12 @@ const SecurityForm = () => {
           )}
         </Grid>
       </form>
+      <Box mt={4} textAlign="center">
+        <FormControlLabel
+          control={<Checkbox checked={notificationEnabled} onChange={handleNotificationChange} />}
+          label="Enable notification if you want others to invite you to their team"
+        />
+      </Box>
       </Container>
     </div>
   );

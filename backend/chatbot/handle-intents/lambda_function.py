@@ -48,7 +48,7 @@ def handleNavIntent(event):
                 "type": "Close"
             },
             "intent": {
-                "name": "NavigationIntent",
+                "name": "TeamScoresIntent",
                 "state": "Fulfilled"
             }
         },
