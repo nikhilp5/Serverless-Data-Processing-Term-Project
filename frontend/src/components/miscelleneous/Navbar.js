@@ -96,7 +96,7 @@ function Navbar() {
 
     const handleLogout = () => {
         setAnchorEl(null);
-        firebase.auth().signOut()
+        //firebase.auth().signOut()
         setIsLoggedOut(true); // Update the flag to indicate logout
         navigate("/SignIn")
     };
