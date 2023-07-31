@@ -59,6 +59,7 @@ const Quiz = (props) => {
 		dispatch(setIsQuestionLoading(true));
 		const request = {
 			action: 'NEXT_QUESTION',
+			teamId: teamId,
 			data: {
 				teamId: teamId,
 				gameId: gameId,

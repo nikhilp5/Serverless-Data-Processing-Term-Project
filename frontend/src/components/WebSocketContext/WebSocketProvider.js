@@ -58,11 +58,21 @@ export default ({ children }) => {
 	);
 
 	useEffect(() => {
-		ws.current = new WebSocket(wsApi);
+		const wsUrl = `${wsApi}?teamId=${teamId}`;
+		ws.current = new WebSocket(wsUrl);
+		// ws.current = new WebSocket(wsApi);
+
+		// ws.current.onopen = () => {
+		// 	setWebSocket(ws.current);
+		// 	console.log('Connected to websocket');
+		// };
 
 		ws.current.onopen = () => {
 			setWebSocket(ws.current);
 			console.log('Connected to websocket');
+
+			// Send the teamId to the server
+			ws.current.send(JSON.stringify({ teamId }));
 		};
 
 		ws.current.onmessage = handleMessage;
