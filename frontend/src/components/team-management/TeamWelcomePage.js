@@ -50,6 +50,7 @@ function TeamWelcomePage() {
   };
 
   const viewTeam = (teamId) => {
+    localStorage.setItem('teamId', teamId);
     navigate('/teamOperations', { state: { teamId: teamId } });
   };
 
