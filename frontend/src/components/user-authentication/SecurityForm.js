@@ -107,7 +107,9 @@ const SecurityForm = () => {
   
       if (result.statusCode === 200) {
         handleSetAuthDone();
-        if (body.newUser) {
+        if (process.env.REACT_APP_ADMIN_EMAILID === currentUserEmail) {
+          navigate("/adminpage");
+        } else if (body.newUser) {
           navigate("/profile?isNewUser=true");
         } else{
           navigate("/welcomeTeamPage");
