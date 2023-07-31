@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Box, Grid, Typography, TextField, Button, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogActions, } from '@mui/material';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-//import { AuthContext } from "../../services/AuthContext";
+import { AuthContext } from "../../services/AuthContext";
 
 function TeamOperations() {
-    //const { currentUser } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const [teamName, setTeamName] = useState('');
     const [teamMembers, setTeamMembers] = useState([]);
     const [currentUserEmail, setCurrentUserEmail] = useState('');
     const [currentUserRole, setCurrentUserRole] = useState('');
+    const { currentUser } = useContext(AuthContext);
+    const { isAuthenticated } = useContext(AuthContext);
 
     // Get teamId from previous screen
     const location = useLocation();
@@ -68,7 +68,11 @@ function TeamOperations() {
 
     const handleUpdate = async (userEmail, action) => {
         try {
-            await axios.put(
+            if (action === 'updateRole' && userEmail === currentUserEmail && teamMembers.length === 1) {
+                alert("You cannot demote yourself when you are the only member in the team");
+                return;
+            }
+            const response = await axios.put(
                 `https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team`,
                 {
                     teamId: teamId,
@@ -77,11 +81,13 @@ function TeamOperations() {
                 }
             );
             if (action === 'updateRole') {
+                console.log(response)
                 alert("Role updated successfully!");
             } 
             else if (action === 'kickUser') {
                 if (userEmail === currentUserEmail) {
                     alert("You kicked yourself out!");
+                    localStorage.removeItem('teamId');
                     navigate('/welcomeTeamPage')
                 } 
                 else {
@@ -99,6 +105,8 @@ function TeamOperations() {
         const fetchTeamMembers = async () => {
             try {
                 const response = await axios.get(`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team?teamId=${teamId}`)
+                console.log("Brooooooooooooooooooooooooo", response.data)
+                setTeamName(response.data.teamName)
                 setTeamMembers(response.data.teamMembers);
                 // Loop through the team members
                 response.data.teamMembers.forEach(member => {
@@ -115,40 +123,26 @@ function TeamOperations() {
         };
     
         fetchTeamMembers();
+        if (currentUser) {
+            setCurrentUserEmail(currentUser.email)
+        } 
+    }, [teamId, currentUserEmail, currentUser, isAuthenticated]);
 
-        const generateTeamName = async () => {
-            // try {
-            //     const response = await axios.get('https://api.chagpt.com/team-name');
-            //     console.log(response)
-            //     setTeamName(response.data.teamName);
-            // } catch (error) {
-            //     console.error('Failed to generate team name:', error);
-            // }
-        };
-
-        generateTeamName();
-
-        // get current user
-        const auth = getAuth()
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                setCurrentUserEmail(user.email)
-            } else {
-                alert('Sign In to play!')
-            }
-        })
-    }, [teamId, currentUserEmail]);
-
+    const navigateToInviteTeamMembers = () => {
+        navigate('/inviteTeam', { state: { teamId: teamId, teamName: teamName, teamMembers: teamMembers } });
+    };
+    
         return (
+            isAuthenticated ?
             <Box mt={5}>
-                <Grid container justifyContent="center" spacing={2}>
-                    <Grid item>
-                        <Typography variant="h6" align="center"> Your Auto-Generated Team Name: </Typography>
-                    </Grid>
-                    <Grid item>
-                        <TextField value={teamName} onChange={(e) => setTeamName(e.target.value)}/>
-                    </Grid>
+                <Grid container alignItems="center" justifyContent="center" spacing={2}>
+                <Grid item>
+                    <Typography variant="h6">Your Auto-Generated Team Name:</Typography>
                 </Grid>
+                <Grid item>
+                    <Typography variant="subtitle1" color="primary">{teamName}</Typography>
+                </Grid>
+            </Grid>
             <Box mt={5}>
             <Typography mt={4} mb={2} variant="h6" align="center"> Team Members </Typography>
             <Grid container justifyContent="center" spacing={2}>
@@ -165,11 +159,11 @@ function TeamOperations() {
                                     <Grid item>
                                         {currentUserRole === 'admin' && (
                                             member.userRole.toLowerCase() === 'admin' ? (
-                                                <Button color="secondary" onClick={() => handleUpdate(member.userId, 'updateRole')}>
+                                                <Button color="secondary" onClick={() => handleUpdate(member.userEmail, 'updateRole')}>
                                                     Demote to Member
                                                 </Button>
                                             ) : (
-                                                <Button color="primary" onClick={() => handleUpdate(member.userId, 'updateRole')}>
+                                                <Button color="primary" onClick={() => handleUpdate(member.userEmail, 'updateRole')}>
                                                     Promote to Admin
                                                 </Button>
                                             )
@@ -191,9 +185,9 @@ function TeamOperations() {
             </Grid>
             </Box>
             <Box mt={5} mb={5} display="flex" justifyContent="center" alignItems="flex-end" gap={2}>
-                <Button variant="contained" color="success" onClick={openInviteDialog}>
-                    Invite Others
-                </Button>
+            <Button variant="contained" color="success" onClick={navigateToInviteTeamMembers} disabled={currentUserRole === "member"}>
+                Invite Others
+            </Button>
                 <Button variant="contained" color='warning' onClick={viewTeamStatistics}>
                     View Team Statistics
                 </Button>
@@ -201,7 +195,7 @@ function TeamOperations() {
                     Leave Team
                 </Button>
             </Box>
-            <Dialog open={inviteDialogOpen} onClose={closeInviteDialog}>
+            {/* <Dialog open={inviteDialogOpen} onClose={closeInviteDialog}>
                 <DialogTitle>Invite Others</DialogTitle>
                     <DialogContent>
                         <TextField label="Email Address" value={inviteEmail} onChange={handleInviteEmailChange} fullWidth />
@@ -215,8 +209,10 @@ function TeamOperations() {
                             Send Invite
                         </Button>
                     </DialogActions>
-            </Dialog>
+            </Dialog> */}
         </Box>
+        :
+        <div>Please login to access this page.</div>
     );
 }
 
