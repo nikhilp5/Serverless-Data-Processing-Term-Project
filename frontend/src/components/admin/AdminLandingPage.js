@@ -1,8 +1,13 @@
 import { Box, Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../services/AuthContext";
+import React, { useContext } from "react";
+
 
 const AdminLandingPage = () => {
   const navigate = useNavigate();
+  const { currentUser } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
 
   const manageQuestions = () => {
     navigate("/questionsmanagepage");
@@ -13,7 +18,7 @@ const AdminLandingPage = () => {
   const manageData = () => {
     navigate("/engagementpage");
   };
-  return (
+  return isAuthenticated ? (
     <Box
       display="flex"
       justifyContent="center"
@@ -56,7 +61,9 @@ const AdminLandingPage = () => {
           </Button>
         </Box>
       </Box>
-    </Box>
+    </Box>) : (
+    // JSX to display a message if the user is not logged in
+    <div>Please login to access this page.</div>
   );
 };
 
