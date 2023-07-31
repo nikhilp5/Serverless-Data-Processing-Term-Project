@@ -128,7 +128,12 @@ const SecurityForm = () => {
   // Function to handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+    // Check if the notification is enabled
+    if (!notificationEnabled) {
+      // If not, alert the user and prevent form submission
+      alert('Please check the notification box. It is mandatory! And confirm subscription in your inbox');
+      return;
+    }
     const userId = firebase.auth().currentUser.uid;  
     invokesecondFactorAuthLambda(userId);
   };
