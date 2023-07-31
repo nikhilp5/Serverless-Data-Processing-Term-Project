@@ -184,7 +184,6 @@ function Navbar() {
 								<MenuItem onClick={handleLogout}>
 									Log Out
 								</MenuItem>
-								<MenuItem onClick={handleQuiz}>Quiz</MenuItem>
 							</>
 						) : (
 							<MenuItem onClick={() => navigate('/SignIn')}>
@@ -193,11 +192,7 @@ function Navbar() {
 						)}
 					</Menu>
 				</Toolbar>
-				{isChatbotOpen && (
-					<div className='chatbot-popup'>
-						<Chatbot></Chatbot>
-					</div>
-				)}
+				{isChatbotOpen && <Chatbot />}
 			</AppBar>
 
 			<Drawer

@@ -5,7 +5,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from "../../services/AuthContext";
 
 function TeamOperations() {
-    //const { currentUser } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const [teamName, setTeamName] = useState('');
@@ -101,6 +100,8 @@ function TeamOperations() {
         const fetchTeamMembers = async () => {
             try {
                 const response = await axios.get(`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team?teamId=${teamId}`)
+                console.log("Brooooooooooooooooooooooooo", response.data)
+                setTeamName(response.data.teamName)
                 setTeamMembers(response.data.teamMembers);
                 // Loop through the team members
                 response.data.teamMembers.forEach(member => {
@@ -117,34 +118,26 @@ function TeamOperations() {
         };
     
         fetchTeamMembers();
-
-        const generateTeamName = async () => {
-            // try {
-            //     const response = await axios.get('https://api.chagpt.com/team-name');
-            //     console.log(response)
-            //     setTeamName(response.data.teamName);
-            // } catch (error) {
-            //     console.error('Failed to generate team name:', error);
-            // }
-        };
-
-        generateTeamName();
         if (currentUser) {
             setCurrentUserEmail(currentUser.email)
         } 
     }, [teamId, currentUserEmail, currentUser, isAuthenticated]);
 
+    const navigateToInviteTeamMembers = () => {
+        navigate('/inviteTeam', { state: { teamId: teamId, teamName: teamName } });
+    };
+    
         return (
             isAuthenticated ?
             <Box mt={5}>
-                <Grid container justifyContent="center" spacing={2}>
-                    <Grid item>
-                        <Typography variant="h6" align="center"> Your Auto-Generated Team Name: </Typography>
-                    </Grid>
-                    <Grid item>
-                        <TextField value={teamName} onChange={(e) => setTeamName(e.target.value)}/>
-                    </Grid>
+                <Grid container alignItems="center" justifyContent="center" spacing={2}>
+                <Grid item>
+                    <Typography variant="h6">Your Auto-Generated Team Name:</Typography>
                 </Grid>
+                <Grid item>
+                    <Typography variant="subtitle1" color="primary">{teamName}</Typography>
+                </Grid>
+            </Grid>
             <Box mt={5}>
             <Typography mt={4} mb={2} variant="h6" align="center"> Team Members </Typography>
             <Grid container justifyContent="center" spacing={2}>
@@ -187,7 +180,7 @@ function TeamOperations() {
             </Grid>
             </Box>
             <Box mt={5} mb={5} display="flex" justifyContent="center" alignItems="flex-end" gap={2}>
-            <Button variant="contained" color="success" onClick={openInviteDialog} disabled={currentUserRole === "member"}>
+            <Button variant="contained" color="success" onClick={navigateToInviteTeamMembers} disabled={currentUserRole === "member"}>
                 Invite Others
             </Button>
                 <Button variant="contained" color='warning' onClick={viewTeamStatistics}>
@@ -197,7 +190,7 @@ function TeamOperations() {
                     Leave Team
                 </Button>
             </Box>
-            <Dialog open={inviteDialogOpen} onClose={closeInviteDialog}>
+            {/* <Dialog open={inviteDialogOpen} onClose={closeInviteDialog}>
                 <DialogTitle>Invite Others</DialogTitle>
                     <DialogContent>
                         <TextField label="Email Address" value={inviteEmail} onChange={handleInviteEmailChange} fullWidth />
@@ -211,7 +204,7 @@ function TeamOperations() {
                             Send Invite
                         </Button>
                     </DialogActions>
-            </Dialog>
+            </Dialog> */}
         </Box>
         :
         <div>Please login to access this page.</div>
