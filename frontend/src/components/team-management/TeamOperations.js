@@ -87,6 +87,7 @@ function TeamOperations() {
             else if (action === 'kickUser') {
                 if (userEmail === currentUserEmail) {
                     alert("You kicked yourself out!");
+                    localStorage.removeItem('teamId');
                     navigate('/welcomeTeamPage')
                 } 
                 else {
