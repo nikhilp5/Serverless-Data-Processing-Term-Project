@@ -13,19 +13,20 @@ teamScoresIntent = 'TeamScoresIntent'
 def lambda_handler(event, context):
     # Extract intent name and user input from the Lex event
     intent_name = event['sessionState']['intent']['name']
-    user_input = event['inputTranscript'].lower()
 
     # Check the intent name and call the corresponding handler function
     if intent_name == navigationIntent:
-        return handleNavIntent(user_input)
+        return handleNavIntent(event)
 
     if intent_name == teamScoresIntent:
-        return handleTeamScoresIntent(user_input)
+        return handleTeamScoresIntent(event)
 
 
-def handleNavIntent(user_input):
+def handleNavIntent(event):
     # Define the base URL for navigation
     url = "http://"
+    slots = event['sessionState']['intent']['slots']
+    nav_req_name = slots['navReqName']['value']['interpretedValue'].lower()
     
     # Map user input to corresponding URLs
     dictionary = {
@@ -35,10 +36,10 @@ def handleNavIntent(user_input):
     }
     
     # Retrieve the URL from the dictionary based on user input
-    if user_input in dictionary:
-        response_str = dictionary[user_input]
+    if nav_req_name in dictionary:
+        response_str = dictionary[nav_req_name]
     else:
-        response_str = f'{user_input} not found.'
+        response_str = f'{nav_req_name} not found.'
     
     # Prepare the response in Lex format
     response = {
@@ -70,9 +71,10 @@ def handleNavIntent(user_input):
 #    Availability: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html
 ########################################################################################/
 
-def handleTeamScoresIntent(user_input):
-    # Generate a response with the team score based on user input
-    response_str = f'{user_input} score is 100'
+def handleTeamScoresIntent(event):
+    slots = event['sessionState']['intent']['slots']
+    team_name = slots['teamName']['value']['interpretedValue'].lower()
+    response_str = f'{team_name} score is 100'
     response = {
         "sessionState": {
             "dialogAction": {
