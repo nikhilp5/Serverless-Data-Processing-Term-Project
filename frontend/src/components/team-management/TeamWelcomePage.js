@@ -42,6 +42,7 @@ function TeamWelcomePage() {
         }
       );
       alert('Team created successfully!');
+      alert('Please confirm subscription in your inbox for team notifications!')
       window.location.reload();
     } catch (error) {
       console.error('Error creating team:', error);

@@ -1,6 +1,6 @@
 // Author: [Shubham Mishra]
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { Paper, List, ListItem, ListItemText, TextField, Button, Typography } from '@mui/material';
 
@@ -14,6 +14,19 @@ const Chatbot = () => {
   // State to manage user input and chat history
   const [userInput, setUserInput] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
+
+  // Ref for the chat list element
+  const chatListRef = useRef();
+
+    // Function to scroll to the bottom of the chat list
+    const scrollToBottom = () => {
+      chatListRef.current.scrollTop = chatListRef.current.scrollHeight;
+    };
+
+  // UseEffect hook to scroll to bottom when chatHistory changes
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatHistory]);
 
   // Function to handle user input change
   const handleUserInput = (event) => {
@@ -68,7 +81,7 @@ const Chatbot = () => {
         Virtual Assistant
       </Typography>
       {/* List to display chat history */}
-      <List style={{ height: 400, overflowY: 'scroll' }}>
+      <List ref={chatListRef} style={{ height: 400, overflowY: 'scroll' }}>
         {chatHistory.map((chat, index) => (
           <ListItem key={index} style={{ justifyContent: chat.sender === 'user' ? 'flex-end' : 'flex-start' }}>
             {/* Display chat messages with appropriate alignment */}

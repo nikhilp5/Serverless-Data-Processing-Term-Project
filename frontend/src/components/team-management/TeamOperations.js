@@ -68,6 +68,10 @@ function TeamOperations() {
 
     const handleUpdate = async (userEmail, action) => {
         try {
+            if (action === 'updateRole' && userEmail === currentUserEmail && teamMembers.length === 1) {
+                alert("You cannot demote yourself when you are the only member in the team");
+                return;
+            }
             const response = await axios.put(
                 `https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team`,
                 {
@@ -124,7 +128,7 @@ function TeamOperations() {
     }, [teamId, currentUserEmail, currentUser, isAuthenticated]);
 
     const navigateToInviteTeamMembers = () => {
-        navigate('/inviteTeam', { state: { teamId: teamId, teamName: teamName } });
+        navigate('/inviteTeam', { state: { teamId: teamId, teamName: teamName, teamMembers: teamMembers } });
     };
     
         return (
