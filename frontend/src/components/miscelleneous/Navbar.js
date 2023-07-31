@@ -19,6 +19,8 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import { AuthContext } from '../../services/AuthContext';
 import Chatbot from '../chatbot/Chatbot';
+import { useDispatch } from 'react-redux';
+import { resetQuiz } from '../../redux/quizSlice';
 
 function Navbar() {
 	const [anchorEl, setAnchorEl] = useState(null);
@@ -30,6 +32,7 @@ function Navbar() {
 	const navigate = useNavigate();
 	const { currentUser } = useContext(AuthContext);
 	const { isAuthenticated } = useContext(AuthContext);
+	const dispatch = useDispatch();
 
 	const handleMenuOpen = (event) => {
 		setAnchorEl(event.currentTarget);
@@ -121,6 +124,7 @@ function Navbar() {
 		firebase.auth().signOut();
 		setIsSecondFactorAuthDone(false);
 		localStorage.setItem('isSecondFactorAuthDone', JSON.stringify(false));
+		dispatch(resetQuiz());
 		navigate('/SignIn');
 	};
 

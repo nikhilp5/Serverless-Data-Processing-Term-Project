@@ -1,7 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setQuiz, updateQuiz } from '../../redux/quizSlice';
+import {
+	setIsQuestionLoading,
+	setQuiz,
+	updateQuiz,
+} from '../../redux/quizSlice';
 import { useNavigate } from 'react-router-dom';
+import { setScore } from '../../redux/teamScoreSlice';
 
 export const WebSocketContext = React.createContext(null);
 
@@ -13,6 +18,8 @@ export default ({ children }) => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 
+	const teamId = 'team-1689466532241';
+
 	const handleMessage = useCallback(
 		(messageEvent) => {
 			const message = JSON.parse(messageEvent.data);
@@ -21,8 +28,18 @@ export default ({ children }) => {
 
 			if (message && message.action === 'FIRST_QUESTION') {
 				console.log('FIRST_QUESTION.data', message.data);
+				dispatch(setIsQuestionLoading(false));
 				dispatch(setQuiz(message.data));
 				navigate('/Quiz');
+			}
+
+			if (message && message.action === 'END_GAME') {
+				console.log('END_GAME.data', message.data.scores);
+				dispatch(setIsQuestionLoading(false));
+				const scores = message.data.scores;
+
+				dispatch(setScore(scores[teamId]));
+				navigate('/ScorePage');
 			}
 
 			if (message && message.action === 'NEXT_QUESTION') {
@@ -41,11 +58,21 @@ export default ({ children }) => {
 	);
 
 	useEffect(() => {
-		ws.current = new WebSocket(wsApi);
+		const wsUrl = `${wsApi}?teamId=${teamId}`;
+		ws.current = new WebSocket(wsUrl);
+		// ws.current = new WebSocket(wsApi);
+
+		// ws.current.onopen = () => {
+		// 	setWebSocket(ws.current);
+		// 	console.log('Connected to websocket');
+		// };
 
 		ws.current.onopen = () => {
 			setWebSocket(ws.current);
 			console.log('Connected to websocket');
+
+			// Send the teamId to the server
+			ws.current.send(JSON.stringify({ teamId }));
 		};
 
 		ws.current.onmessage = handleMessage;
