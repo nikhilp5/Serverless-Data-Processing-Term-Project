@@ -53,7 +53,7 @@ const TeamMembers = () => {
 	const [teamReady, setTeamReady] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
-	const sessionUserString = sessionStorage.getItem('currentUser');
+	const sessionUserString = localStorage.getItem('currentUser');
 	const sessionUser = JSON.parse(sessionUserString);
 	const currentPlayerId = sessionUser ? sessionUser.email : null;
 

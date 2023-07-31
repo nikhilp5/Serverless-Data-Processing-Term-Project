@@ -48,9 +48,9 @@ export const AuthProvider = ({ children }) => {
 	useEffect(() => {
 		setIsAuthenticated(currentUser !== null && isSecondFactorAuthDone);
 		if (isSecondFactorAuthDone) {
-			sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+			localStorage.setItem('currentUser', JSON.stringify(currentUser));
 		} else {
-			sessionStorage.removeItem('currentUser');
+			localStorage.removeItem('currentUser');
 		}
 	}, [currentUser, isSecondFactorAuthDone]);
 

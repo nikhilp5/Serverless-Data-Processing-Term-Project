@@ -3,6 +3,7 @@ import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import quizReducer from './quizSlice';
+import teamScoreReducer from './teamScoreSlice';
 
 const persistConfig = {
 	key: 'root',
@@ -12,6 +13,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
 	quiz: quizReducer,
+	score: teamScoreReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

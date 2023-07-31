@@ -12,18 +12,28 @@ import { styled } from '@mui/styles';
 import { WebSocketContext } from '../WebSocketContext/WebSocketProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsQuestionLoading } from '../../redux/quizSlice';
+import { green, grey, red } from '@mui/material/colors';
 
 const Quiz = (props) => {
 	// TODO: Work on getting team Id when start game
 	const teamId = 'team-1689466532241';
 	const gameId = '033c70b0-22e2-11ee-898b-dfc6867500b6';
 
+	const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+	const currentUserEmail = currentUser.email;
+
+	// console.log('currentUser', currentUser);
+
+	// console.log('currentUserEmail', currentUserEmail);
+
 	const quiz = useSelector((state) => state.quiz);
 
 	const currentQuestion = quiz.currentQuestion;
 	const currentQuestionIndex = quiz.currentQuestionIndex + 1;
 	const totalQuestions = quiz.totalQuestions;
+	const nextResponder = quiz.nextResponder;
 
+	const [isUserTurn, setIsUserTurn] = useState(false);
 	const [selectedOption, setSelectedOption] = useState(null);
 	const [score, setScore] = useState(0);
 
@@ -31,8 +41,16 @@ const Quiz = (props) => {
 
 	const { webSocket, message } = useContext(WebSocketContext);
 
-	console.log('Quiz', quiz);
+	// console.log( 'Quiz', quiz );
 
+	// console.log('selectedOption', selectedOption);
+	useEffect(() => {
+		if (Object.values(nextResponder).includes(currentUserEmail)) {
+			setIsUserTurn(true);
+		} else {
+			setIsUserTurn(false);
+		}
+	}, [nextResponder]);
 	const handleOptionChange = (option) => {
 		setSelectedOption(option);
 	};
@@ -44,10 +62,13 @@ const Quiz = (props) => {
 			data: {
 				teamId: teamId,
 				gameId: gameId,
+				ansResponder: currentUserEmail,
+				submittedAnswer: selectedOption,
 			},
 		};
 		webSocket.send(JSON.stringify(request));
 	};
+	console.log('quiz.isQuestionLoading', quiz.isQuestionLoading);
 
 	function shuffleArray(array) {
 		for (let i = array.length - 1; i > 0; i--) {
@@ -119,10 +140,56 @@ const Quiz = (props) => {
 			fontSize: '0.9rem',
 			fontWeight: 'bold',
 		},
+		lightContainer: {
+			display: 'flex',
+			flexDirection: 'column',
+			alignItems: 'center',
+			justifyContent: 'center',
+			width: '100%',
+			height: '110px',
+		},
+		indicatorText: {
+			fontSize: '1rem',
+			fontWeight: 'bold',
+			color: '#555',
+		},
+		trafficLight: {
+			display: 'flex',
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center',
+			width: '100px',
+			height: '30px',
+			backgroundColor: '#333',
+			borderRadius: '15px',
+			padding: '3px',
+			mt: '1rem',
+		},
+		light: (color) => ({
+			bgcolor: color,
+			width: '25px',
+			height: '25px',
+			borderRadius: '50%',
+			mx: '3px',
+			boxShadow: '0 0 10px 5px rgba(0, 0, 0, 0.2)',
+		}),
 	};
 
 	return (
 		<Box sx={styles.box}>
+			<Box sx={styles.lightContainer}>
+				<Typography sx={styles.indicatorText}>
+					{isUserTurn ? 'Your Turn' : "Other Team Member's Turn"}
+				</Typography>
+				<Box sx={styles.trafficLight}>
+					<Box
+						sx={styles.light(isUserTurn ? green[500] : grey[500])}
+					/>
+					<Box
+						sx={styles.light(!isUserTurn ? red[500] : grey[500])}
+					/>
+				</Box>
+			</Box>
 			<Typography sx={styles.typography}>
 				<span>Question {currentQuestionIndex}</span>/ {totalQuestions}
 			</Typography>
@@ -149,7 +216,7 @@ const Quiz = (props) => {
 			))}
 
 			<Button
-				disabled={!selectedOption}
+				disabled={!(selectedOption && isUserTurn)}
 				variant='contained'
 				color='primary'
 				onClick={handleNextQuestion}

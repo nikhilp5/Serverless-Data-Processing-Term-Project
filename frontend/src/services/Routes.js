@@ -9,6 +9,7 @@ import TeamWelcomePage from '../components/team-management/TeamWelcomePage';
 import Quiz from '../components/quiz';
 import InviteTeamMembers from '../components/team-management/InviteTeamMembers';
 import TeamMembers from '../components/quiz-wait-lobby';
+import ScorePage from '../components/ScorePage';
 
 const Routes = () => {
 	return (
@@ -23,6 +24,7 @@ const Routes = () => {
 			<Route path='/UserStats' element={<UserStats />} />
 			<Route path='/Quiz' element={<Quiz />} />
 			<Route path='/WaitLobby' element={<TeamMembers />} />
+			<Route path='/ScorePage' element={<ScorePage />} />
 		</Rt>
 	);
 };
