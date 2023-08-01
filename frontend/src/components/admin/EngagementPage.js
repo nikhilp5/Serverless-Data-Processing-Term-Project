@@ -1,7 +1,15 @@
 import { Box, Button, Typography } from "@mui/material";
+import { AuthContext } from "../../services/AuthContext";
+import React, {useContext, useEffect} from "react";
 
 const EngagementPage = () => {
-  return (
+  const { currentUser } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
+
+  useEffect(() => {
+  }, [currentUser, isAuthenticated]);
+
+  return isAuthenticated ? (
     <Box
       display="flex"
       justifyContent="center"
@@ -9,7 +17,9 @@ const EngagementPage = () => {
       minHeight="100vh"
     >
       EngagementPage
-    </Box>
+    </Box>) : (
+    // JSX to display a message if the user is not logged in
+    <div>Please login to access this page.</div>
   );
 };
 
