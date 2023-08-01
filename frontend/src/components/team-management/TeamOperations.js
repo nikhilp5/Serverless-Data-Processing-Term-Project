@@ -34,53 +34,26 @@ function TeamOperations() {
     const location = useLocation();
     const teamId = location.state?.teamId;
     
-    // Invite another user
-    const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
-    const [inviteEmail, setInviteEmail] = useState('');
-    const [inviteMessage, setInviteMessage] = useState('');
-
-    const openInviteDialog = () => {
-        setInviteDialogOpen(true);
+    const [teamStats, setTeamStats] = useState(null);
+    const [statsDialogOpen, setStatsDialogOpen] = useState(false);
+    
+    const fetchTeamStats = async () => {
+        try {
+            //const response = await axios.get(`https://jmflaholi8.execute-api.us-east-1.amazonaws.com/dev/getteamstats?teamId=${teamId}`);
+            const response = await axios.get('https://jmflaholi8.execute-api.us-east-1.amazonaws.com/dev/getteamstats?teamId=team-168946653224')
+            setTeamStats(response.data);
+            // Open the stats dialog
+            setStatsDialogOpen(true);
+        } catch (error) {
+            console.error('Failed to fetch team stats:', error);
+            setTeamStats({
+                totalMatches: 0
+            });
+            // Open the stats dialog
+            setStatsDialogOpen(true);
+        }
     };
     
-    const closeInviteDialog = () => {
-        setInviteDialogOpen(false);
-        setInviteEmail('');
-    };
-
-    const handleInviteEmailChange = (e) => {
-        setInviteEmail(e.target.value);
-    };
-
-    const handleInviteMessageChange = (e) => {
-        setInviteMessage(e.target.value);
-    }
-
-    const sendInvite = async () => {
-    try {
-        // Create a notification in DynamoDB
-        const response = await axios.post(
-        'https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/publish-sns-topic',
-        {
-            inviteEmail: inviteEmail,
-            message: inviteMessage,
-            typeOfMessage: 'team invite',
-            teamId: teamId,
-            teamName: teamName
-        });
-
-        console.log('Invite sent successfully:', response.data);
-        alert('Invite has been sent!')
-
-        closeInviteDialog();
-    } catch (error) {
-        console.error('Failed to send invite:', error);
-    }
-    };
-
-    const viewTeamStatistics = () => {
-        // Logic to view team stattistics
-    };
 
     const handleUpdate = async (userEmail, action) => {
         try {
@@ -121,7 +94,6 @@ function TeamOperations() {
         const fetchTeamMembers = async () => {
             try {
                 const response = await axios.get(`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team?teamId=${teamId}`)
-                console.log("Brooooooooooooooooooooooooo", response.data)
                 setTeamName(response.data.teamName)
                 setTeamMembers(response.data.teamMembers);
                 // Loop through the team members
@@ -215,7 +187,7 @@ function TeamOperations() {
             <Button variant="contained" color="success" onClick={navigateToInviteTeamMembers} disabled={currentUserRole === "member"}>
                 Invite Others
             </Button>
-                <Button variant="contained" color='warning' onClick={viewTeamStatistics}>
+                <Button variant="contained" color='warning' onClick={fetchTeamStats}>
                     View Team Statistics
                 </Button>
                 <Button variant="contained" color='error' onClick={() => handleUpdate(currentUserEmail, 'kickUser')}>
@@ -264,21 +236,37 @@ function TeamOperations() {
           setPage(0);
         }}
       />
-            {/* <Dialog open={inviteDialogOpen} onClose={closeInviteDialog}>
-                <DialogTitle>Invite Others</DialogTitle>
+        <Dialog open={statsDialogOpen} onClose={() => setStatsDialogOpen(false)}>
+            <DialogTitle>Team Statistics</DialogTitle>
+            {teamStats ? (
+                teamStats.totalMatches === 0 ? (
                     <DialogContent>
-                        <TextField label="Email Address" value={inviteEmail} onChange={handleInviteEmailChange} fullWidth />
+                        <Typography variant="subtitle1">Please play games to view your stats.</Typography>
                     </DialogContent>
+                ) : (
                     <DialogContent>
-                        <TextField label="Message" value={inviteMessage} onChange={handleInviteMessageChange} fullWidth />
+                        <Typography variant="subtitle1">Team Name: {teamStats.teamName}</Typography>
+                        <Typography variant="subtitle1">Total Matches: {teamStats.totalMatches}</Typography>
+                        <Typography variant="subtitle1">Total Wins: {teamStats.totalWins}</Typography>
+                        <Typography variant="subtitle1">Total Losses: {teamStats.totalLosses}</Typography>
+                        <Typography variant="subtitle1">Total Points: {teamStats.totalPoints}</Typography>
+                        <Typography variant="subtitle1">Match History:</Typography>
+                        {teamStats.matchHistory.map((match, index) => (
+                            <Typography variant="body2" key={index}>
+                                Game: {match.Game}, Points: {match.Points}, Won: {match.Won ? 'Yes' : 'No'}, Date: {new Date(match.Date).toLocaleString()}, Difficulty: {match.Difficulty}, Category: {match.Category}
+                            </Typography>
+                        ))}
                     </DialogContent>
-                    <DialogActions>
-                        <Button color='error' onClick={closeInviteDialog}>Cancel</Button>
-                        <Button onClick={sendInvite} color="success">
-                            Send Invite
-                        </Button>
-                    </DialogActions>
-            </Dialog> */}
+                )
+            ) : (
+                <DialogContent>
+                    <Typography variant="subtitle1">Loading...</Typography>
+                </DialogContent>
+            )}
+            <DialogActions>
+                <Button color='error' onClick={() => setStatsDialogOpen(false)}>Close</Button>
+            </DialogActions>
+        </Dialog>
         </Box>
         :
         <div>Please login to access this page.</div>
