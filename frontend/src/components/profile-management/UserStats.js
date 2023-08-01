@@ -1,34 +1,56 @@
 // Author: [Shubham Mishra]
 
-import React, {useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Typography, Card, CardContent, Grid } from '@mui/material';
 import { AuthContext } from '../../services/AuthContext';
+import axios from 'axios';
 
 const UserStats = () => {
-    const { currentUser } = useContext(AuthContext);
-    const [userStatistics, setUserStatistics] = useState({
-        gamesPlayed: 0,
-        gamesWon: 0,
-        gamesLost: 0,
-        totalPointsEarned: 0,
-    });
+  // Get the current user and authentication status from the AuthContext
+  const { currentUser } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
 
-    useEffect(() => {
-        const fetchData = async () => {
-          try {
-            const response = await fetch('');
-            const data = await response.json();
-            setUserStatistics(data);
-          } catch (error) {
-            console.error('Error fetching user statistics:', error);
-          }
-        };
-    
-        fetchData();
-      }, []);
+  // State to store user statistics
+  const [userStatistics, setUserStatistics] = useState({
+    gamesPlayed: 0,
+    gamesWon: 0,
+    gamesLost: 0,
+    totalPointsEarned: 0,
+  });
 
+  // Function to fetch user statistics from the API
+  const fetchData = async () => {
+    try {
+      // Construct the API URL with the current user's email
+      const url = `https://jvmr978102.execute-api.us-east-1.amazonaws.com/dev/getuserstats?userId=${currentUser.email}`;
 
-  return (
+      // Send a GET request to the API using axios
+      const response = await axios.get(url);
+
+      // Map the API response data to the userStatistics state
+      const mappedResponse = {
+        gamesPlayed: response.data.game_played,
+        gamesWon: response.data.game_won,
+        gamesLost: response.data.game_lost,
+        totalPointsEarned: response.data.total_score,
+      };
+
+      // Update the userStatistics state with the mapped data
+      setUserStatistics(mappedResponse);
+    } catch (error) {
+      console.error('Error fetching user statistics:', error);
+    }
+  };
+
+  // Fetch user's profile data when the component mounts or user authentication changes
+  useEffect(() => {
+    if (currentUser) {
+      fetchData();
+    }
+  }, [currentUser, isAuthenticated]);
+
+  // Conditional rendering based on user authentication status
+  return isAuthenticated ? (
     <div>
       <Typography variant="h4" align="center" gutterBottom>
         User Statistics
@@ -80,6 +102,9 @@ const UserStats = () => {
         </Grid>
       </Grid>
     </div>
+  ) : (
+    // JSX to display a message if the user is not logged in
+    <div>Please login to access this page.</div>
   );
 };
 
