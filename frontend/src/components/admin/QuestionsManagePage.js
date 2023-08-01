@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -25,6 +25,7 @@ import {
 import TablePagination from "@mui/material/TablePagination";
 import axios from "axios";
 import { v1 as uuid } from "uuid";
+import { AuthContext } from "../../services/AuthContext";
 
 const containerStyle = {
   marginBottom: "16px",
@@ -50,23 +51,27 @@ const QuestionsManagePage = () => {
   });
   const [tagInputValue, setTagInputValue] = useState("");
   const [optionInputValue, setOptionInputValue] = useState("");
+  const { currentUser } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
 
   // Pagination state
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5); // You can adjust the number of rows per page here
 
   useEffect(() => {
-    axios
-      .get(
-        "https://49ne542hc9.execute-api.us-east-1.amazonaws.com/dev/fetchquestions"
-      )
-      .then((result) => {
-        setQuestions(result.data.body);
-      })
-      .catch((error) => {
-        alert(error.response.data.body);
-      });
-  }, []);
+    if (currentUser) {
+      axios
+        .get(
+          "https://49ne542hc9.execute-api.us-east-1.amazonaws.com/dev/fetchquestions"
+        )
+        .then((result) => {
+          setQuestions(result.data.body);
+        })
+        .catch((error) => {
+          alert(error.response.data.body);
+        });
+    }
+  }, [currentUser, isAuthenticated]);
 
   const handleAddModalOpen = () => {
     setIsAddModalOpen(true);
@@ -265,7 +270,7 @@ const QuestionsManagePage = () => {
     setPage(0);
   };
 
-  return (
+  return isAuthenticated ? (
     <Container style={containerStyle}>
       <br />
       <Button
@@ -585,7 +590,9 @@ const QuestionsManagePage = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Container>
+    </Container>) : (
+    // JSX to display a message if the user is not logged in
+    <div>Please login to access this page.</div>
   );
 };
 
