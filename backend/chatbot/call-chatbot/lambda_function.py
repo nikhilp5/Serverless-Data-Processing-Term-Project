@@ -23,7 +23,7 @@ def lambda_handler(event, context):
     # Set parameters for calling Lex Runtime to recognize user text input
     params = {
         'botId': 'N3WILBLNLZ',
-        'botAliasId': 'IMZNEN22V3',
+        'botAliasId': 'VJJI2N8JM0',
         'localeId': 'en_US',
         'sessionId': user_id,
         'text': user_input,

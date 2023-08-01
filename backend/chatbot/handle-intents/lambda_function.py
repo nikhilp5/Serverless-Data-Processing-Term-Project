@@ -23,32 +23,44 @@ def lambda_handler(event, context):
 
 
 def handleNavIntent(event):
-    # Define the base URL for navigation
-    url = "http://"
+    # URL of the application
+    app_url = "https://serverless-quizapp-mirroredrepo-ayabirf2sa-uc.a.run.app"
+
+    # Extract slot values from the Lex event to access user input data
     slots = event['sessionState']['intent']['slots']
-    nav_req_name = slots['navReqName']['value']['interpretedValue'].lower()
+    nav_req_name = slots['navReqName']['value']['interpretedValue'].lower().strip()
+    print("navReqName=", nav_req_name)
     
-    # Map user input to corresponding URLs
+    # Dictionary mapping navigation requests to their corresponding URLs
     dictionary = {
-        'login': f'{url}login',
-        'signup': f'{url}signup',
-        'profile': f'{url}profile'
+        'landing': f'{app_url}/',
+        'login': f'{app_url}/SignIn',
+        'signin': f'{app_url}/SignIn',
+        'signup': f'{app_url}/SignIn',
+        'teams': f'{app_url}/welcomeTeamPage',
+        'profile': f'{app_url}/profile',
+        'invitation': f'{app_url}/inviteTeam',
+        'statistics': f'{app_url}/UserStats',
+        'stats': f'{app_url}/UserStats',
+        'quiz': f'{app_url}/Quiz',
+        'leaderboard': f'{app_url}/leaderboard',
     }
     
-    # Retrieve the URL from the dictionary based on user input
     if nav_req_name in dictionary:
-        response_str = dictionary[nav_req_name]
+        # If the user's navigation request exists in the dictionary, retrieve the corresponding URL
+        response_str = f'URL of {nav_req_name} page is: {dictionary[nav_req_name]}'
     else:
-        response_str = f'{nav_req_name} not found.'
+        # If the user's navigation request is not found in the dictionary, provide a default response
+        response_str = f'{nav_req_name} page not found.'
     
-    # Prepare the response in Lex format
+    # Response message containing the navigation URL
     response = {
         "sessionState": {
             "dialogAction": {
                 "type": "Close"
             },
             "intent": {
-                "name": "TeamScoresIntent",
+                "name": "NavigationIntent",
                 "state": "Fulfilled"
             }
         },
@@ -62,8 +74,8 @@ def handleNavIntent(event):
     
     print("handleNavIntent==", response)
     
+    # Return the response message to Lex for further processing and displaying to the user
     return response
-
 
 ########################################################################################
 #    Code Reference: DynamoDB
