@@ -175,7 +175,20 @@ const GamesManagePage = () => {
           participants: [],
           scores: {},
         });
-      })
+        // Publish the message
+        const url = 'https://oz5x35a4ea.execute-api.us-east-1.amazonaws.com/test/publish';
+        const data = {
+          "target": "all",
+          "message": `Hello players, the admin has added a new game: ${newGame.gameName} category, ${newGame.difficultyLevel}`
+        };
+        axios.post(url, data)
+          .then(response => {
+            console.log('The message was successfully sent!', response);
+          })
+          .catch(error => {
+            console.error('An error occurred while sending the message.', error);
+          });
+        })
       .catch((error) => {
         alert(error.response.data.body);
       });
