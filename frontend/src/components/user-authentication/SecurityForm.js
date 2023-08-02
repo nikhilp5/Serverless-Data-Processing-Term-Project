@@ -28,6 +28,8 @@ const SecurityForm = () => {
   const [notificationEnabled, setNotificationEnabled] = useState(false);
   const [currentUserEmail, setCurrentUserEmail] = useState('');
 
+  const [subscriptionConfirmation, setSubscriptionConfirmation] = useState(false);
+
   useEffect(() => {
     if (currentUser) {
       setCurrentUserEmail(currentUser.email);
@@ -136,6 +138,12 @@ const SecurityForm = () => {
       alert('Please check the notification box. It is mandatory! And confirm subscription in your inbox');
       return;
     }
+    // Check if the subscription confirmation is accepted
+    if (!subscriptionConfirmation) {
+      // If not, alert the user and prevent form submission
+      alert('Please check the subscription confirmation box. It is mandatory!');
+      return;
+    }
     const userId = firebase.auth().currentUser.uid;  
     invokesecondFactorAuthLambda(userId);
   };
@@ -146,7 +154,8 @@ const SecurityForm = () => {
     try {
         if (checked) {
           // Make a POST request when the checkbox is checked
-          const response = await axios.post('https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/sns-topic', { inviteEmail: currentUserEmail });
+          //const response = await axios.post('https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/sns-topic', { inviteEmail: currentUserEmail });
+          const response = await axios.post('https://oz5x35a4ea.execute-api.us-east-1.amazonaws.com/test/subscribe', { email: currentUserEmail })
           console.log("This is responseeeeeeeeee", response)
           alert('Please confirm the email subscription in your registered email inbox/spam. Thanks!')
           //console.log('Notification enabled and POST request sent.');
@@ -158,6 +167,18 @@ const SecurityForm = () => {
     catch (error) {
         console.log(error.message)
     } 
+  };
+
+  const handleSubscriptionConfirmationChange = async (event) => {
+    const { checked } = event.target;
+    setSubscriptionConfirmation(checked);
+    if (checked) {
+      // Make a POST request when the checkbox is checked
+      const response = await axios.post('https://oz5x35a4ea.execute-api.us-east-1.amazonaws.com/test/add-filter-policy', { email: currentUserEmail });
+      console.log("This is response", response)
+    } else {
+      console.log('Subscription confirmation not accepted.');
+    }
   };
   
   return (
@@ -219,6 +240,10 @@ const SecurityForm = () => {
         <FormControlLabel
           control={<Checkbox checked={notificationEnabled} onChange={handleNotificationChange} />}
           label="Enable notification if you want others to invite you to their team"
+        />
+        <FormControlLabel
+          control={<Checkbox checked={subscriptionConfirmation} onChange={handleSubscriptionConfirmationChange} />}
+          label="Tick here if you have accepted the subscription confirmation in your email"
         />
       </Box>
       </Container>

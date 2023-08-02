@@ -89,6 +89,7 @@ function Navbar() {
 			alert(
 				'Please confirm subscription in your inbox/spam to receive team notifications!'
 			);
+			window.location.reload();
 		} catch (error) {
 			console.error('Failed to accept invite:', error);
 		}
@@ -110,6 +111,7 @@ function Navbar() {
 			//     messages: prevNotifications.messages.filter(notification => notification.teamId !== teamId),
 			// }));
 			alert('Invite declined');
+			window.location.reload();
 		} catch (error) {
 			console.error('Failed to decline invite:', error);
 		}
