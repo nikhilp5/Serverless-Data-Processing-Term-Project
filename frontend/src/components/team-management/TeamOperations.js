@@ -130,7 +130,14 @@ function TeamOperations() {
     const navigateToInviteTeamMembers = () => {
         navigate('/inviteTeam', { state: { teamId: teamId, teamName: teamName, teamMembers: teamMembers } });
     };
-    
+
+    const handleJoinGame = (gameId) => {
+        // Store the gameId in localStorage
+        localStorage.setItem('gameId', gameId);
+        // Navigate to the /TeamMembers route
+        navigate('/WaitLobby');
+      };
+          
         return (
             isAuthenticated ?
             <Box mt={5}>
@@ -215,6 +222,7 @@ function TeamOperations() {
                   <TableCell align="right">
                   <Button
                 variant="contained"
+                onClick={() => handleJoinGame(game.gameID)}
                 >
                 Join Game
                 </Button>
