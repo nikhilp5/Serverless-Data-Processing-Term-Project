@@ -84,7 +84,8 @@ const TeamMembers = () => {
 	const checkTeamReady = async () => {
 		try {
 			const response = await axios.post(
-				'https://heot861m04.execute-api.us-east-1.amazonaws.com/dev/isready',
+				'https://k0wesz1f4i.execute-api.us-east-1.amazonaws.com/dev/isready',
+				// 'https://heot861m04.execute-api.us-east-1.amazonaws.com/dev/isready',
 				{
 					teamId: teamId,
 				}
@@ -136,7 +137,8 @@ const TeamMembers = () => {
 
 			try {
 				const response = await axios.post(
-					'https://uuy9y7vzyl.execute-api.us-east-1.amazonaws.com/dev/status',
+					'https://zaji3l4fn6.execute-api.us-east-1.amazonaws.com/dev/status',
+					// 'https://uuy9y7vzyl.execute-api.us-east-1.amazonaws.com/dev/status',
 					{
 						teamId: teamData.teamId,
 						userEmail: userEmail,
