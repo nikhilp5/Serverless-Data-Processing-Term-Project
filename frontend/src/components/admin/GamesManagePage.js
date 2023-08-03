@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -30,6 +30,7 @@ import {
 import Input from "@mui/material/Input";
 import axios from "axios";
 import { v1 as uuid } from "uuid";
+import { AuthContext } from "../../services/AuthContext";
 
 const containerStyle = {
   marginBottom: "16px",
@@ -61,19 +62,23 @@ const GamesManagePage = () => {
   const [participantInputValue, setParticipantInputValue] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const { currentUser } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
 
   useEffect(() => {
-    axios
-      .get(
-        "https://0cfsqsski6.execute-api.us-east-1.amazonaws.com/dev/fetchgames"
-      )
-      .then((result) => {
-        setGames(result.data.body);
-      })
-      .catch((error) => {
-        alert(error.response.data.body);
-      });
-  }, []);
+    if (currentUser) {
+      axios
+        .get(
+          "https://0cfsqsski6.execute-api.us-east-1.amazonaws.com/dev/fetchgames"
+        )
+        .then((result) => {
+          setGames(result.data.body);
+        })
+        .catch((error) => {
+          alert(error.response.data.body);
+        });
+    }
+  }, [currentUser, isAuthenticated]);
 
   useEffect(() => {
     axios
@@ -175,7 +180,20 @@ const GamesManagePage = () => {
           participants: [],
           scores: {},
         });
-      })
+        // Publish the message
+        const url = 'https://oz5x35a4ea.execute-api.us-east-1.amazonaws.com/test/publish';
+        const data = {
+          "target": "all",
+          "message": `Hello players, the admin has added a new game: ${newGame.gameName} category, ${newGame.difficultyLevel}`
+        };
+        axios.post(url, data)
+          .then(response => {
+            console.log('The message was successfully sent!', response);
+          })
+          .catch(error => {
+            console.error('An error occurred while sending the message.', error);
+          });
+        })
       .catch((error) => {
         alert(error.response.data.body);
       });
@@ -293,7 +311,7 @@ const GamesManagePage = () => {
     }));
   };
 
-  return (
+  return isAuthenticated ? (
     <Container style={containerStyle}>
       <br />
       <Button
@@ -606,6 +624,9 @@ const GamesManagePage = () => {
         </DialogActions>
       </Dialog>
     </Container>
+  ) : (
+    // JSX to display a message if the user is not logged in
+    <div>Please login to access this page.</div>
   );
 };
 

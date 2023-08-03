@@ -43,8 +43,8 @@ function InviteTeamMembers() {
 
     const checkEmailConfirmation = async (filteredUsers) => {
         const emails = filteredUsers.map(user => user.email);
-        const res = await axios.post('https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/check-email-confirmation', { emails });
-        return JSON.parse(res.data.body);
+        const res = await axios.post('https://oz5x35a4ea.execute-api.us-east-1.amazonaws.com/test/check-confirmation', { emails });
+        return (res.data);
     };
 
     const assignStatusToUsers = (filteredUsers, statusData) => {
@@ -54,14 +54,11 @@ function InviteTeamMembers() {
         });
     };
     
-    const sendInvite = async (inviteEmail, inviteStatus) => {
-        if (inviteStatus !== 'Subscription Confirmed') {
-            alert('User has not confirmed subscription. You cannot send an invite to this user.');
-            return;
-        }
-        
+    const sendInvite = async (inviteEmail) => {        
+        console.log(inviteEmail, 'sending invite to this dude')
         const inviteData = {
-            inviteEmail,
+            target: 'email',
+            email: inviteEmail,
             message: inviteMessage,
             typeOfMessage: 'team invite',
             teamId: locationTeamId,
@@ -70,9 +67,10 @@ function InviteTeamMembers() {
 
         try {
             const response = await axios.post(
-                'https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/publish-sns-topic', 
+                'https://oz5x35a4ea.execute-api.us-east-1.amazonaws.com/test/publish', 
                 inviteData
             );
+            console.log("Hopeeeeeeeeeeeeeeeeeeeeee", response)
             alert('Invite has been sent!');
             navigate('/welcomeTeamPage');
         } catch (error) {
@@ -82,10 +80,8 @@ function InviteTeamMembers() {
 
     const getUserBoxColor = (status) => {
         switch(status) {
-            case 'Subscription Confirmed': 
+            case 'Subscription confirmed': 
                 return 'lightgreen';
-            case 'An error occurred while checking the subscription.':
-                return 'lightcoral';
             default: 
                 return 'lightgoldenrodyellow';
         }
@@ -147,7 +143,7 @@ const UserRow = ({ user, sendInvite, currentUserEmail, getUserBoxColor }) => (
         <Button 
             variant="contained" 
             color="primary" 
-            onClick={() => sendInvite(user.email, user.status)}
+            onClick={() => sendInvite(user.email)}
             disabled={currentUserEmail === user.email}
         >
             Send Invite
