@@ -158,6 +158,11 @@ const Profile = () => {
     navigate("/welcomeTeamPage");
 };
 
+  // Function to navigate to leaderboard page
+  const viewLeaderboard = () => {
+    navigate("/leaderboard");
+};
+
   return isAuthenticated ? (
     // JSX for displaying the user's profile form
     <Grid container spacing={2} mb={3} justifyContent="center" align="center">
@@ -250,7 +255,7 @@ const Profile = () => {
             <Button
               variant="contained"
               style={{ backgroundColor: 'orange', color: 'black' }}
-              onClick={handleSaveChanges}
+              onClick={viewLeaderboard}
             >
               Leaderboard
             </Button>
