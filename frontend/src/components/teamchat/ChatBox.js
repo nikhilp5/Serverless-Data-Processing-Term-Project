@@ -122,18 +122,18 @@ const ChatBox = ({ onClose }) => {
 				<div
 					style={{
 						position: 'fixed',
-						right: 20,
+						right: 10,
 						bottom: 20,
 						display: 'flex',
 					}}
 				>
 					<Paper
 						style={{
-							width: '100%',
+							width: '400px',
 							maxWidth: 400,
 							height: '70vh',
 							borderRadius: 8,
-							boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+							boxShadow: '0px 0px 5px rgba(0, 0, 0, 0.1)',
 							display: 'flex',
 							flexDirection: 'column',
 						}}
