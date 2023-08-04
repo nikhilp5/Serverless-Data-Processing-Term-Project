@@ -15,6 +15,7 @@ import { styled } from '@mui/system';
 import axios from 'axios';
 import { WebSocketContext } from '../WebSocketContext/WebSocketProvider';
 import { useDispatch, useSelector } from 'react-redux';
+import ChatButton from '../teamchat/ChatButton';
 
 const StyledButton = styled(Button)(({ theme, isready }) => ({
 	color: '#fff',
@@ -186,7 +187,12 @@ const TeamMembers = () => {
 				<TableBody>
 					{teamMembers.map((member) => (
 						<TableRow key={member.userEmail}>
-							<TableCell>{member.userEmail}</TableCell>
+							<TableCell>
+								{member.userEmail}{' '}
+								{member.userEmail === currentPlayerId
+									? ' (You ⭐)'
+									: ''}
+							</TableCell>
 							<TableCell>{member.userRole}</TableCell>
 							<TableCell>
 								{member.userEmail === currentPlayerId ? (
@@ -230,6 +236,9 @@ const TeamMembers = () => {
 					'Start'
 				)}
 			</StartButton>
+			<div style={{ marginTop: '20px' }}>
+				<ChatButton />
+			</div>
 		</div>
 	);
 };
