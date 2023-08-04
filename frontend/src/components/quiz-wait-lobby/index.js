@@ -102,7 +102,7 @@ const TeamMembers = () => {
 	useEffect(() => {
 		const timer = setInterval(() => {
 			fetchTeamMembers();
-			//checkTeamReady();
+			checkTeamReady();
 		}, 3000);
 
 		// if (message && message.action === 'GAME_STARTED') {

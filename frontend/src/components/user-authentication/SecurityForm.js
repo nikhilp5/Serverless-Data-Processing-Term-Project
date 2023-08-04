@@ -239,11 +239,11 @@ const SecurityForm = () => {
       <Box mt={4} textAlign="center">
         <FormControlLabel
           control={<Checkbox checked={notificationEnabled} onChange={handleNotificationChange} />}
-          label="Enable notification if you want others to invite you to their team"
+          label="Enable notifications!"
         />
         <FormControlLabel
           control={<Checkbox checked={subscriptionConfirmation} onChange={handleSubscriptionConfirmationChange} />}
-          label="Tick here if you have accepted the subscription confirmation in your email"
+          label="Check here if you have accepted the subscription confirmation in your email"
         />
       </Box>
       </Container>

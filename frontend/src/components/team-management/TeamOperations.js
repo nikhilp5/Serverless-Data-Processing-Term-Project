@@ -69,6 +69,7 @@ function TeamOperations() {
                     action: action,
                 }
             );
+            console.log("Workkkkkkkkkkkkkkkkkkkkkkkkkk", response)
             if (action === 'updateRole') {
                 console.log(response)
                 alert("Role updated successfully!");
@@ -178,7 +179,7 @@ function TeamOperations() {
                                     {/* Render Kick button only if member is not current user */}
                                     <Grid item>
                                         {currentUserRole === 'admin' && (
-                                            <Button color='error' onClick={() => handleUpdate(member.userId, 'kickUser')}>Kick</Button>
+                                            <Button color='error' onClick={() => handleUpdate(member.userEmail, 'kickUser')}>Kick</Button>
                                         )}
                                     </Grid>
                                 </Grid>
