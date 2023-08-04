@@ -1,5 +1,12 @@
 import React from 'react';
-import { Typography, Box, Card, CardContent, Grid } from '@mui/material';
+import {
+	Typography,
+	Box,
+	Card,
+	CardContent,
+	Grid,
+	Button,
+} from '@mui/material';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -84,6 +91,17 @@ const ScorePage = () => {
 										</Card>
 									)
 								)}
+							<Button
+								variant='contained'
+								onClick={handleButtonClick}
+								color='primary'
+								style={{
+									width: '150px',
+									marginTop: '20px',
+								}}
+							>
+								Team Page
+							</Button>
 						</CardContent>
 					</Card>
 				</Grid>

@@ -55,7 +55,6 @@ const GamesManagePage = () => {
     startTime: "",
     endTime: "",
     questions: [],
-    participants: [],
     scores: {},
   });
   const [questionInputValue, setQuestionInputValue] = useState("");
@@ -69,7 +68,8 @@ const GamesManagePage = () => {
     if (currentUser) {
       axios
         .get(
-          "https://0cfsqsski6.execute-api.us-east-1.amazonaws.com/dev/fetchgames"
+          "https://20b0dq23zl.execute-api.us-east-1.amazonaws.com/dev/fetchgames"
+          //   "https://0cfsqsski6.execute-api.us-east-1.amazonaws.com/dev/fetchgames"
         )
         .then((result) => {
           setGames(result.data.body);
@@ -83,7 +83,8 @@ const GamesManagePage = () => {
   useEffect(() => {
     axios
       .get(
-        "https://49ne542hc9.execute-api.us-east-1.amazonaws.com/dev/fetchquestions"
+        "https://znf7w2d5pi.execute-api.us-east-1.amazonaws.com/dev/fetchquestions"
+        // "https://49ne542hc9.execute-api.us-east-1.amazonaws.com/dev/fetchquestions"
       )
       .then((result) => {
         setQuestions(result.data.body);
@@ -96,7 +97,8 @@ const GamesManagePage = () => {
   useEffect(() => {
     axios
       .get(
-        "https://wznz44f63m.execute-api.us-east-1.amazonaws.com/dev/fetchteams"
+        "https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/get-all-teams"
+        // "https://wznz44f63m.execute-api.us-east-1.amazonaws.com/dev/fetchteams"
       )
       .then((result) => {
         setTeams(result.data.body);
@@ -119,7 +121,6 @@ const GamesManagePage = () => {
       startTime: "",
       endTime: "",
       questions: [],
-      participants: [],
       scores: {},
     });
     setQuestionInputValue("");
@@ -142,7 +143,6 @@ const GamesManagePage = () => {
       startTime: "",
       endTime: "",
       questions: [],
-      participants: [],
       scores: {},
     });
     setQuestionInputValue("");
@@ -165,7 +165,8 @@ const GamesManagePage = () => {
     keyAddedValue.gameID = gameID;
     axios
       .post(
-        "https://0cfsqsski6.execute-api.us-east-1.amazonaws.com/dev/addgame",
+        "https://20b0dq23zl.execute-api.us-east-1.amazonaws.com/dev/addgame",
+        // "https://0cfsqsski6.execute-api.us-east-1.amazonaws.com/dev/addgame",
         keyAddedValue
       )
       .then((result) => {
@@ -177,23 +178,27 @@ const GamesManagePage = () => {
           startTime: "",
           endTime: "",
           questions: [],
-          participants: [],
           scores: {},
         });
         // Publish the message
-        const url = 'https://oz5x35a4ea.execute-api.us-east-1.amazonaws.com/test/publish';
+        const url =
+          "https://oz5x35a4ea.execute-api.us-east-1.amazonaws.com/test/publish";
         const data = {
-          "target": "all",
-          "message": `Hello players, the admin has added a new game: ${newGame.gameName} category, ${newGame.difficultyLevel}`
+          target: "all",
+          message: `Hello players, the admin has added a new game: ${newGame.gameName} category, ${newGame.difficultyLevel}`,
         };
-        axios.post(url, data)
-          .then(response => {
-            console.log('The message was successfully sent!', response);
+        axios
+          .post(url, data)
+          .then((response) => {
+            console.log("The message was successfully sent!", response);
           })
-          .catch(error => {
-            console.error('An error occurred while sending the message.', error);
+          .catch((error) => {
+            console.error(
+              "An error occurred while sending the message.",
+              error
+            );
           });
-        })
+      })
       .catch((error) => {
         alert(error.response.data.body);
       });
@@ -206,7 +211,8 @@ const GamesManagePage = () => {
     keyAddedValue.gameID = gameId;
     axios
       .post(
-        "https://0cfsqsski6.execute-api.us-east-1.amazonaws.com/dev/editgame",
+        "https://20b0dq23zl.execute-api.us-east-1.amazonaws.com/dev/editgame",
+        // "https://0cfsqsski6.execute-api.us-east-1.amazonaws.com/dev/editgame",
         keyAddedValue
       )
       .then((result) => {
@@ -225,7 +231,6 @@ const GamesManagePage = () => {
           startTime: "",
           endTime: "",
           questions: [],
-          participants: [],
           scores: {},
         });
         setSelectedGame(null);
@@ -240,7 +245,8 @@ const GamesManagePage = () => {
   const handleDeleteGame = (gameId) => {
     axios
       .post(
-        "https://0cfsqsski6.execute-api.us-east-1.amazonaws.com/dev/deletegame",
+        "https://20b0dq23zl.execute-api.us-east-1.amazonaws.com/dev/deletegame",
+        // "https://0cfsqsski6.execute-api.us-east-1.amazonaws.com/dev/deletegame",
         {
           gameID: gameId,
         }
@@ -280,26 +286,6 @@ const GamesManagePage = () => {
       ...prevGame,
       questions: prevGame.questions.filter(
         (q) => q.questionID !== question.questionID
-      ),
-    }));
-  };
-
-  const handleParticipantsChange = (event) => {
-    const selectedParticipantIDs = Array.from(event.target.value);
-    setNewGame((prevGame) => ({
-      ...prevGame,
-      participants: selectedParticipantIDs.map((participantID) => ({
-        participantID,
-        teamName: teams.find((team) => team.teamID === participantID)?.teamName,
-      })),
-    }));
-  };
-
-  const handleDeleteParticipant = (participant) => {
-    setNewGame((prevGame) => ({
-      ...prevGame,
-      participants: prevGame.participants.filter(
-        (p) => p.participantID !== participant.participantID
       ),
     }));
   };
@@ -437,37 +423,14 @@ const GamesManagePage = () => {
                 key={question.questionID}
                 label={question.question}
                 onDelete={() => handleDeleteQuestion(question)}
-                style={{ marginRight: "8px", marginBottom: "8px" }}
+                style={{
+                  marginRight: "8px",
+                  marginBottom: "8px",
+                }}
               />
             ))}
           </div>
-          <FormControl fullWidth style={{ marginBottom: "8px" }}>
-            <InputLabel id="participants-label">Participants</InputLabel>
-            <Select
-              labelId="participants-label"
-              id="participants-select"
-              multiple
-              value={newGame.participants.map((p) => p.participantID)}
-              onChange={handleParticipantsChange}
-              input={<Input />}
-            >
-              {teams.map((team) => (
-                <MenuItem key={team.teamID} value={team.teamID}>
-                  {team.teamName}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <div style={{ marginBottom: "8px" }}>
-            {newGame.participants.map((participant) => (
-              <Chip
-                key={participant.participantID}
-                label={participant.teamName}
-                onDelete={() => handleDeleteParticipant(participant)}
-                style={{ marginRight: "8px", marginBottom: "8px" }}
-              />
-            ))}
-          </div>
+
           <Typography variant="subtitle1" style={{ marginBottom: "8px" }}>
             Scores:
           </Typography>
@@ -556,37 +519,14 @@ const GamesManagePage = () => {
                 key={question.questionID}
                 label={question.question}
                 onDelete={() => handleDeleteQuestion(question)}
-                style={{ marginRight: "8px", marginBottom: "8px" }}
+                style={{
+                  marginRight: "8px",
+                  marginBottom: "8px",
+                }}
               />
             ))}
           </div>
-          <FormControl fullWidth style={{ marginBottom: "8px" }}>
-            <InputLabel id="participants-label">Participants</InputLabel>
-            <Select
-              labelId="participants-label"
-              id="participants-select"
-              multiple
-              value={newGame.participants.map((p) => p.participantID)}
-              onChange={handleParticipantsChange}
-              input={<Input />}
-            >
-              {teams.map((team) => (
-                <MenuItem key={team.teamID} value={team.teamID}>
-                  {team.teamName}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <div style={{ marginBottom: "8px" }}>
-            {newGame.participants.map((participant) => (
-              <Chip
-                key={participant.participantID}
-                label={participant.teamName}
-                onDelete={() => handleDeleteParticipant(participant)}
-                style={{ marginRight: "8px", marginBottom: "8px" }}
-              />
-            ))}
-          </div>
+
           <Typography variant="subtitle1" style={{ marginBottom: "8px" }}>
             Scores:
           </Typography>

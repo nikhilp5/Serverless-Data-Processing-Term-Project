@@ -13,11 +13,12 @@ import { WebSocketContext } from '../WebSocketContext/WebSocketProvider';
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsQuestionLoading } from '../../redux/quizSlice';
 import { green, grey, red } from '@mui/material/colors';
+import ChatButton from '../teamchat/ChatButton';
 
 const Quiz = (props) => {
 	// TODO: Work on getting team Id when start game
-	const teamId = 'team-1689466532241';
-	const gameId = '033c70b0-22e2-11ee-898b-dfc6867500b6';
+	const teamId = localStorage.getItem('teamId');
+	const gameId = localStorage.getItem('gameId');
 
 	const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 	const currentUserEmail = currentUser.email;
@@ -33,6 +34,7 @@ const Quiz = (props) => {
 	const totalQuestions = quiz.totalQuestions;
 	const nextResponder = quiz.nextResponder;
 
+	console.log('currentQuestion', currentQuestion);
 	const [isUserTurn, setIsUserTurn] = useState(false);
 	const [selectedOption, setSelectedOption] = useState(null);
 	const [score, setScore] = useState(0);
@@ -45,11 +47,13 @@ const Quiz = (props) => {
 
 	// console.log('selectedOption', selectedOption);
 	useEffect(() => {
-		if (Object.values(nextResponder).includes(currentUserEmail)) {
+		if (nextResponder === currentUserEmail) {
+			console.log('here', nextResponder);
 			setIsUserTurn(true);
 		} else {
 			setIsUserTurn(false);
 		}
+		console.log('nextResponder:', nextResponder, isUserTurn);
 	}, [nextResponder]);
 	const handleOptionChange = (option) => {
 		setSelectedOption(option);
@@ -177,59 +181,69 @@ const Quiz = (props) => {
 	};
 
 	return (
-		<Box sx={styles.box}>
-			<Box sx={styles.lightContainer}>
-				<Typography sx={styles.indicatorText}>
-					{isUserTurn ? 'Your Turn' : "Other Team Member's Turn"}
-				</Typography>
-				<Box sx={styles.trafficLight}>
-					<Box
-						sx={styles.light(isUserTurn ? green[500] : grey[500])}
-					/>
-					<Box
-						sx={styles.light(!isUserTurn ? red[500] : grey[500])}
-					/>
-				</Box>
-			</Box>
-			<Typography sx={styles.typography}>
-				<span>Question {currentQuestionIndex}</span>/ {totalQuestions}
-			</Typography>
-			<LinearProgress
-				variant='determinate'
-				value={(currentQuestionIndex / totalQuestions) * 100}
-				sx={styles.linearProgress}
-			/>
-			<Typography variant='h4' component='h1' sx={styles.question}>
-				{currentQuestion.question}
-			</Typography>
-
-			{options.map((option, index) => (
-				<Paper
-					elevation={2}
-					key={index}
-					sx={styles.option(option)}
-					onClick={() => handleOptionChange(option)}
-				>
-					<Typography variant='body1' sx={styles.optionText}>
-						{option}
+		<div>
+			<Box sx={styles.box}>
+				<Box sx={styles.lightContainer}>
+					<Typography sx={styles.indicatorText}>
+						{isUserTurn ? 'Your Turn' : "Other Team Member's Turn"}
 					</Typography>
-				</Paper>
-			))}
+					<Box sx={styles.trafficLight}>
+						<Box
+							sx={styles.light(
+								isUserTurn ? green[500] : grey[500]
+							)}
+						/>
+						<Box
+							sx={styles.light(
+								!isUserTurn ? red[500] : grey[500]
+							)}
+						/>
+					</Box>
+				</Box>
+				<Typography sx={styles.typography}>
+					<span>Question {currentQuestionIndex}</span>/{' '}
+					{totalQuestions}
+				</Typography>
+				<LinearProgress
+					variant='determinate'
+					value={(currentQuestionIndex / totalQuestions) * 100}
+					sx={styles.linearProgress}
+				/>
+				<Typography variant='h4' component='h1' sx={styles.question}>
+					{currentQuestion.question}
+				</Typography>
 
-			<Button
-				disabled={!(selectedOption && isUserTurn)}
-				variant='contained'
-				color='primary'
-				onClick={handleNextQuestion}
-				sx={styles.button}
-			>
-				{quiz.isQuestionLoading ? (
-					<CircularProgress color='inherit' size={24} />
-				) : (
-					'Submit'
-				)}
-			</Button>
-		</Box>
+				{options.map((option, index) => (
+					<Paper
+						elevation={2}
+						key={index}
+						sx={styles.option(option)}
+						onClick={() => handleOptionChange(option)}
+					>
+						<Typography variant='body1' sx={styles.optionText}>
+							{option}
+						</Typography>
+					</Paper>
+				))}
+
+				<Button
+					disabled={!(selectedOption && isUserTurn)}
+					variant='contained'
+					color='primary'
+					onClick={handleNextQuestion}
+					sx={styles.button}
+				>
+					{quiz.isQuestionLoading ? (
+						<CircularProgress color='inherit' size={24} />
+					) : (
+						'Submit'
+					)}
+				</Button>
+				<div>
+					<ChatButton />
+				</div>
+			</Box>
+		</div>
 	);
 };
 

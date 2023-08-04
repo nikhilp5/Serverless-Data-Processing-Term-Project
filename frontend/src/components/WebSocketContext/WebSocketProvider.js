@@ -18,7 +18,7 @@ export default ({ children }) => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 
-	const teamId = 'team-1689466532241';
+	const teamId = localStorage.getItem('teamId');
 
 	const handleMessage = useCallback(
 		(messageEvent) => {

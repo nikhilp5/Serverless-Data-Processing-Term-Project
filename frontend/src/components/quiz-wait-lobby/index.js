@@ -15,6 +15,7 @@ import { styled } from '@mui/system';
 import axios from 'axios';
 import { WebSocketContext } from '../WebSocketContext/WebSocketProvider';
 import { useDispatch, useSelector } from 'react-redux';
+import ChatButton from '../teamchat/ChatButton';
 
 const StyledButton = styled(Button)(({ theme, isready }) => ({
 	color: '#fff',
@@ -46,11 +47,11 @@ const StartButton = styled(Button)(({ theme }) => ({
 
 const TeamMembers = () => {
 	// const teamId = 'team-1689466532241';
-	const teamId = localStorage.getItem('teamId')
-
+	const teamId = localStorage.getItem('teamId');
 
 	// const gameId = '033c70b0-22e2-11ee-898b-dfc6867500b6';
-	const gameId = localStorage.getItem('gameId')
+	const gameId = localStorage.getItem('gameId');
+	// console.log('gameId-----------', gameId);
 
 	const [teamData, setTeamData] = useState(null);
 	const [teamMembers, setTeamMembers] = useState([]);
@@ -72,7 +73,9 @@ const TeamMembers = () => {
 			// const response = await axios.get(
 			// 	'https://nc0jzt33ed.execute-api.us-east-1.amazonaws.com/test/teams?teamId=team-1689466532241'
 			// );
-			const response = await axios.get(`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team?teamId=${teamId}`)
+			const response = await axios.get(
+				`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team?teamId=${teamId}`
+			);
 			const data = response.data;
 			setTeamData(data);
 			setTeamMembers(data.teamMembers);
@@ -184,7 +187,12 @@ const TeamMembers = () => {
 				<TableBody>
 					{teamMembers.map((member) => (
 						<TableRow key={member.userEmail}>
-							<TableCell>{member.userEmail}</TableCell>
+							<TableCell>
+								{member.userEmail}{' '}
+								{member.userEmail === currentPlayerId
+									? ' (You ⭐)'
+									: ''}
+							</TableCell>
 							<TableCell>{member.userRole}</TableCell>
 							<TableCell>
 								{member.userEmail === currentPlayerId ? (
@@ -228,6 +236,9 @@ const TeamMembers = () => {
 					'Start'
 				)}
 			</StartButton>
+			<div style={{ marginTop: '20px' }}>
+				<ChatButton />
+			</div>
 		</div>
 	);
 };
