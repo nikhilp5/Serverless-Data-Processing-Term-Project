@@ -34,6 +34,7 @@ const Quiz = (props) => {
 	const totalQuestions = quiz.totalQuestions;
 	const nextResponder = quiz.nextResponder;
 
+	console.log('currentQuestion', currentQuestion);
 	const [isUserTurn, setIsUserTurn] = useState(false);
 	const [selectedOption, setSelectedOption] = useState(null);
 	const [score, setScore] = useState(0);
