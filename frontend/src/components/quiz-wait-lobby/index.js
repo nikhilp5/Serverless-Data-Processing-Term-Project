@@ -46,11 +46,11 @@ const StartButton = styled(Button)(({ theme }) => ({
 
 const TeamMembers = () => {
 	// const teamId = 'team-1689466532241';
-	const teamId = localStorage.getItem('teamId')
-
+	const teamId = localStorage.getItem('teamId');
 
 	// const gameId = '033c70b0-22e2-11ee-898b-dfc6867500b6';
-	const gameId = localStorage.getItem('gameId')
+	const gameId = localStorage.getItem('gameId');
+	// console.log('gameId-----------', gameId);
 
 	const [teamData, setTeamData] = useState(null);
 	const [teamMembers, setTeamMembers] = useState([]);
@@ -72,7 +72,9 @@ const TeamMembers = () => {
 			// const response = await axios.get(
 			// 	'https://nc0jzt33ed.execute-api.us-east-1.amazonaws.com/test/teams?teamId=team-1689466532241'
 			// );
-			const response = await axios.get(`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team?teamId=${teamId}`)
+			const response = await axios.get(
+				`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team?teamId=${teamId}`
+			);
 			const data = response.data;
 			setTeamData(data);
 			setTeamMembers(data.teamMembers);
@@ -102,7 +104,7 @@ const TeamMembers = () => {
 	useEffect(() => {
 		const timer = setInterval(() => {
 			fetchTeamMembers();
-			//checkTeamReady();
+			checkTeamReady();
 		}, 3000);
 
 		// if (message && message.action === 'GAME_STARTED') {
