@@ -19,9 +19,10 @@ const ChatButton = () => {
 				<ChatBox onClose={handleChatBoxClose} />
 			) : (
 				<Button
-					variant='outlined'
+					variant='contained'
+					color='success'
 					onClick={handleChatButtonClick}
-					style={{ position: 'fixed', bottom: 20, right: 20 }}
+					// style={{ position: 'fixed', bottom: 20, right: 20 }}
 				>
 					Chat
 				</Button>

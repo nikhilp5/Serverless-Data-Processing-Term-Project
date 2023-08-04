@@ -238,10 +238,10 @@ const Quiz = (props) => {
 						'Submit'
 					)}
 				</Button>
+				<div>
+					<ChatButton />
+				</div>
 			</Box>
-			<div>
-				<ChatButton />
-			</div>
 		</div>
 	);
 };

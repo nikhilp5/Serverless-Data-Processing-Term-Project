@@ -295,8 +295,13 @@ const ChatBox = ({ onClose }) => {
 				</div>
 			)}
 			{!isChatVisible && (
-				<div style={{ position: 'fixed', bottom: 20, right: 20 }}>
-					<Button variant='outlined' onClick={handleChatVisibility}>
+				<div>
+					{/* </div> style={{ position: 'fixed', bottom: 20, right: 20 }}> */}
+					<Button
+						variant='contained'
+						color='success'
+						onClick={handleChatVisibility}
+					>
 						Open Chat
 					</Button>
 				</div>
