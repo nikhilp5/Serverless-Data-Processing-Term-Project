@@ -187,7 +187,12 @@ const TeamMembers = () => {
 				<TableBody>
 					{teamMembers.map((member) => (
 						<TableRow key={member.userEmail}>
-							<TableCell>{member.userEmail}</TableCell>
+							<TableCell>
+								{member.userEmail}{' '}
+								{member.userEmail === currentPlayerId
+									? ' (You ⭐)'
+									: ''}
+							</TableCell>
 							<TableCell>{member.userRole}</TableCell>
 							<TableCell>
 								{member.userEmail === currentPlayerId ? (
@@ -231,7 +236,7 @@ const TeamMembers = () => {
 					'Start'
 				)}
 			</StartButton>
-			<div>
+			<div style={{ marginTop: '20px' }}>
 				<ChatButton />
 			</div>
 		</div>
