@@ -15,6 +15,7 @@ import { styled } from '@mui/system';
 import axios from 'axios';
 import { WebSocketContext } from '../WebSocketContext/WebSocketProvider';
 import { useDispatch, useSelector } from 'react-redux';
+import ChatButton from '../teamchat/ChatButton';
 
 const StyledButton = styled(Button)(({ theme, isready }) => ({
 	color: '#fff',
@@ -230,6 +231,9 @@ const TeamMembers = () => {
 					'Start'
 				)}
 			</StartButton>
+			<div>
+				<ChatButton />
+			</div>
 		</div>
 	);
 };
