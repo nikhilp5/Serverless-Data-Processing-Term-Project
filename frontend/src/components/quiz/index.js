@@ -16,8 +16,8 @@ import { green, grey, red } from '@mui/material/colors';
 
 const Quiz = (props) => {
 	// TODO: Work on getting team Id when start game
-	const teamId = 'team-1689466532241';
-	const gameId = '033c70b0-22e2-11ee-898b-dfc6867500b6';
+	const teamId = localStorage.getItem('teamId');
+	const gameId = localStorage.getItem('gameId');
 
 	const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 	const currentUserEmail = currentUser.email;
@@ -45,11 +45,13 @@ const Quiz = (props) => {
 
 	// console.log('selectedOption', selectedOption);
 	useEffect(() => {
-		if (Object.values(nextResponder).includes(currentUserEmail)) {
+		if (nextResponder === currentUserEmail) {
+			console.log('here', nextResponder);
 			setIsUserTurn(true);
 		} else {
 			setIsUserTurn(false);
 		}
+		console.log('nextResponder:', nextResponder, isUserTurn);
 	}, [nextResponder]);
 	const handleOptionChange = (option) => {
 		setSelectedOption(option);
