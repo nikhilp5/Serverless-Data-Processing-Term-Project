@@ -1,9 +1,33 @@
 import React from 'react';
 import { Typography, Box, Card, CardContent, Grid } from '@mui/material';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const ScorePage = () => {
 	const score = useSelector((state) => state.score.score);
+	const navigate = useNavigate();
+	
+	const handleButtonClick = async () => { // make the function async
+		// Add the POST request
+		const url = "https://oz5x35a4ea.execute-api.us-east-1.amazonaws.com/test/publish";
+		const data = {
+			target: "all",
+			message: `Hello players, the leaderboard ranks have changed. Please view the leaderboard on your profile page. `,
+		};
+
+		try {
+			const response = await axios.post(url, data);
+			console.log(response.data); // log the response to the console
+			alert("View your inbox for notifications!")
+		} catch (error) {
+			console.error('Error sending POST request:', error); // log any error
+		}
+
+		// Navigate after the POST request
+		navigate('/teamOperations');
+	};
+
 	if (!score) {
 		return <div>Loading...</div>;
 	}

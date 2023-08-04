@@ -54,7 +54,11 @@ function InviteTeamMembers() {
         });
     };
     
-    const sendInvite = async (inviteEmail) => {        
+    const sendInvite = async (inviteEmail, userStatus) => {    
+        if (userStatus !== 'Subscription confirmed') {
+            alert('Cannot send invite. User has not confirmed their subscription!');
+            return;
+        }    
         console.log(inviteEmail, 'sending invite to this dude')
         const inviteData = {
             target: 'email',
@@ -143,7 +147,7 @@ const UserRow = ({ user, sendInvite, currentUserEmail, getUserBoxColor }) => (
         <Button 
             variant="contained" 
             color="primary" 
-            onClick={() => sendInvite(user.email)}
+            onClick={() => sendInvite(user.email, user.status)}
             disabled={currentUserEmail === user.email}
         >
             Send Invite

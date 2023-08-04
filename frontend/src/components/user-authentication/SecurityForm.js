@@ -1,5 +1,3 @@
-// Author: [Shubham Mishra]
-
 import React, { useState, useContext, useEffect } from "react";
 import { TextField, Grid, Button, Typography, Container, Box, FormControlLabel, Checkbox } from "@mui/material";
 import firebase from "firebase/compat/app";
@@ -35,12 +33,21 @@ const SecurityForm = () => {
       setCurrentUserEmail(currentUser.email);
       const savedState = localStorage.getItem(`notificationEnabled_${currentUser.email}`);
       setNotificationEnabled(savedState ? JSON.parse(savedState) : false);
+
+      // Load the state of subscription confirmation from the local storage
+      const savedStateSubscription = localStorage.getItem(`subscriptionConfirmation_${currentUser.email}`);
+      setSubscriptionConfirmation(savedStateSubscription ? JSON.parse(savedStateSubscription) : false);
+
     }
   }, [currentUser]);
 
   useEffect(() => {
     localStorage.setItem(`notificationEnabled_${currentUserEmail}`, JSON.stringify(notificationEnabled));
-  }, [notificationEnabled, currentUserEmail]);
+
+    // Save the state of subscription confirmation in the local storage
+    localStorage.setItem(`subscriptionConfirmation_${currentUserEmail}`, JSON.stringify(subscriptionConfirmation));
+
+  }, [notificationEnabled, subscriptionConfirmation, currentUserEmail]);
 
   // Fetch user data from the server when the component mounts or user authentication changes
   useEffect(() => {
