@@ -1,13 +1,14 @@
+//Author: Dev Rajawat
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Button from '@mui/material/Button';
 import ListItemText from '@mui/material/ListItemText';
-import Container from '@mui/material/Container';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import CloseIcon from '@mui/icons-material/Close';
 
+//URL for Web Socket API
 const URL = 'wss://badzjszszd.execute-api.us-east-1.amazonaws.com/production';
 
 const ChatBox = ({ onClose }) => {
@@ -49,6 +50,7 @@ const ChatBox = ({ onClose }) => {
 				{ message: data.systemMessage, system: true },
 			]);
 		}
+
 	}, []);
 
 	const onConnect = useCallback(() => {
@@ -97,20 +99,7 @@ const ChatBox = ({ onClose }) => {
 		}
 	};
 
-	const getUserColor = (name) => {
-		console.log(name);
-		const index = members.indexOf(name);
-		const colors = [
-			'#ff5252',
-			'#448aff',
-			'#00c853',
-			'#ff6d00',
-			'#ff4081',
-			'#6200ea',
-		];
-		console.log(colors[index]);
-		return colors[index % colors.length];
-	};
+
 
 	const handleChatVisibility = () => {
 		setIsChatVisible((prev) => !prev);
