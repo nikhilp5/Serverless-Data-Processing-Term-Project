@@ -10,7 +10,7 @@ import {
 	DialogTitle,
 	DialogContent,
 	DialogActions,
-    Container,
+	Container,
 } from '@mui/material';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -44,14 +44,16 @@ function TeamOperations() {
 	};
 	// Get teamId from previous screen
 	const location = useLocation();
-	const teamId = location.state?.teamId;
+	const teamId = localStorage.getItem('teamId');
 
 	const [teamStats, setTeamStats] = useState(null);
 	const [statsDialogOpen, setStatsDialogOpen] = useState(false);
 
 	const fetchTeamStats = async () => {
 		try {
-			const response = await axios.get(`https://jmflaholi8.execute-api.us-east-1.amazonaws.com/dev/getteamstats?teamId=${teamId}`);
+			const response = await axios.get(
+				`https://jmflaholi8.execute-api.us-east-1.amazonaws.com/dev/getteamstats?teamId=${teamId}`
+			);
 			// const response = await axios.get(
 			// 	'https://jmflaholi8.execute-api.us-east-1.amazonaws.com/dev/getteamstats?teamId=team-168946653224'
 			// );
@@ -69,7 +71,7 @@ function TeamOperations() {
 	};
 
 	const handleUpdate = async (userEmail, action) => {
-        console.log(userEmail, "shvjsdfdgjsfsj")
+		console.log(userEmail, 'shvjsdfdgjsfsj');
 		try {
 			if (
 				action === 'updateRole' &&
@@ -92,7 +94,7 @@ function TeamOperations() {
 			if (action === 'updateRole') {
 				console.log(response);
 				alert('Role updated successfully!');
-                window.location.reload();
+				window.location.reload();
 			} else if (action === 'kickUser') {
 				if (userEmail === currentUserEmail) {
 					alert('You kicked yourself out!');
@@ -214,7 +216,10 @@ function TeamOperations() {
 											color='textSecondary'
 										>
 											{member.userRole}
-                                            {member.userEmail === currentUserEmail ? "(You)" : ""}
+											{member.userEmail ===
+											currentUserEmail
+												? '(You)'
+												: ''}
 										</Typography>
 										<Grid
 											mt={2}
@@ -306,58 +311,61 @@ function TeamOperations() {
 					Leave Team
 				</Button>
 			</Box>
-            <Container>
-			<TableContainer component={Paper} style={tableContainerStyle}>
-				<Table>
-					<TableHead>
-						<TableRow>
-							<TableCell>Game Name</TableCell>
-							<TableCell>Category</TableCell>
-							<TableCell>Difficulty Level</TableCell>
-							<TableCell align='right'>Actions</TableCell>
-						</TableRow>
-					</TableHead>
-					<TableBody>
-						{games
-							.slice(
-								page * rowsPerPage,
-								page * rowsPerPage + rowsPerPage
-							)
-							.map((game) => (
-								<TableRow key={game.gameID}>
-									<TableCell>{game.gameName}</TableCell>
-									<TableCell>{game.category}</TableCell>
-									<TableCell>
-										{game.difficultyLevel}
-									</TableCell>
-									<TableCell align='right'>
-										<Button
-											variant='contained'
-											onClick={() =>
-												handleJoinGame(game.gameID, game.gameName)
-											}
-										>
-											Join Game
-										</Button>
-									</TableCell>
-								</TableRow>
-							))}
-					</TableBody>
-				</Table>
-			</TableContainer>
-			<TablePagination
-				rowsPerPageOptions={[5, 10, 25]} // Change this array as needed
-				component='div'
-				count={games.length}
-				rowsPerPage={rowsPerPage}
-				page={page}
-				onPageChange={(event, newPage) => setPage(newPage)}
-				onRowsPerPageChange={(event) => {
-					setRowsPerPage(parseInt(event.target.value, 10));
-					setPage(0);
-				}}
-			/>
-            </Container>
+			<Container>
+				<TableContainer component={Paper} style={tableContainerStyle}>
+					<Table>
+						<TableHead>
+							<TableRow>
+								<TableCell>Game Name</TableCell>
+								<TableCell>Category</TableCell>
+								<TableCell>Difficulty Level</TableCell>
+								<TableCell align='right'>Actions</TableCell>
+							</TableRow>
+						</TableHead>
+						<TableBody>
+							{games
+								.slice(
+									page * rowsPerPage,
+									page * rowsPerPage + rowsPerPage
+								)
+								.map((game) => (
+									<TableRow key={game.gameID}>
+										<TableCell>{game.gameName}</TableCell>
+										<TableCell>{game.category}</TableCell>
+										<TableCell>
+											{game.difficultyLevel}
+										</TableCell>
+										<TableCell align='right'>
+											<Button
+												variant='contained'
+												onClick={() =>
+													handleJoinGame(
+														game.gameID,
+														game.gameName
+													)
+												}
+											>
+												Join Game
+											</Button>
+										</TableCell>
+									</TableRow>
+								))}
+						</TableBody>
+					</Table>
+				</TableContainer>
+				<TablePagination
+					rowsPerPageOptions={[5, 10, 25]} // Change this array as needed
+					component='div'
+					count={games.length}
+					rowsPerPage={rowsPerPage}
+					page={page}
+					onPageChange={(event, newPage) => setPage(newPage)}
+					onRowsPerPageChange={(event) => {
+						setRowsPerPage(parseInt(event.target.value, 10));
+						setPage(0);
+					}}
+				/>
+			</Container>
 			<Dialog
 				open={statsDialogOpen}
 				onClose={() => setStatsDialogOpen(false)}
