@@ -1,5 +1,3 @@
-// Author: [Shubham Mishra]
-
 import React, { useState, useContext, useEffect } from "react";
 import { TextField, Grid, Button, Typography, Container, Box, FormControlLabel, Checkbox } from "@mui/material";
 import firebase from "firebase/compat/app";
@@ -28,17 +26,28 @@ const SecurityForm = () => {
   const [notificationEnabled, setNotificationEnabled] = useState(false);
   const [currentUserEmail, setCurrentUserEmail] = useState('');
 
+  const [subscriptionConfirmation, setSubscriptionConfirmation] = useState(false);
+
   useEffect(() => {
     if (currentUser) {
       setCurrentUserEmail(currentUser.email);
       const savedState = localStorage.getItem(`notificationEnabled_${currentUser.email}`);
       setNotificationEnabled(savedState ? JSON.parse(savedState) : false);
+
+      // Load the state of subscription confirmation from the local storage
+      const savedStateSubscription = localStorage.getItem(`subscriptionConfirmation_${currentUser.email}`);
+      setSubscriptionConfirmation(savedStateSubscription ? JSON.parse(savedStateSubscription) : false);
+
     }
   }, [currentUser]);
 
   useEffect(() => {
     localStorage.setItem(`notificationEnabled_${currentUserEmail}`, JSON.stringify(notificationEnabled));
-  }, [notificationEnabled, currentUserEmail]);
+
+    // Save the state of subscription confirmation in the local storage
+    localStorage.setItem(`subscriptionConfirmation_${currentUserEmail}`, JSON.stringify(subscriptionConfirmation));
+
+  }, [notificationEnabled, subscriptionConfirmation, currentUserEmail]);
 
   // Fetch user data from the server when the component mounts or user authentication changes
   useEffect(() => {
@@ -107,7 +116,9 @@ const SecurityForm = () => {
   
       if (result.statusCode === 200) {
         handleSetAuthDone();
-        if (body.newUser) {
+        if (process.env.REACT_APP_ADMIN_EMAILID === currentUserEmail) {
+          navigate("/adminpage");
+        } else if (body.newUser) {
           navigate("/profile?isNewUser=true");
         } else{
           navigate("/welcomeTeamPage");
@@ -134,6 +145,12 @@ const SecurityForm = () => {
       alert('Please check the notification box. It is mandatory! And confirm subscription in your inbox');
       return;
     }
+    // Check if the subscription confirmation is accepted
+    if (!subscriptionConfirmation) {
+      // If not, alert the user and prevent form submission
+      alert('Please check the subscription confirmation box. It is mandatory!');
+      return;
+    }
     const userId = firebase.auth().currentUser.uid;  
     invokesecondFactorAuthLambda(userId);
   };
@@ -144,7 +161,8 @@ const SecurityForm = () => {
     try {
         if (checked) {
           // Make a POST request when the checkbox is checked
-          const response = await axios.post('https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/sns-topic', { inviteEmail: currentUserEmail });
+          //const response = await axios.post('https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/sns-topic', { inviteEmail: currentUserEmail });
+          const response = await axios.post('https://oz5x35a4ea.execute-api.us-east-1.amazonaws.com/test/subscribe', { email: currentUserEmail })
           console.log("This is responseeeeeeeeee", response)
           alert('Please confirm the email subscription in your registered email inbox/spam. Thanks!')
           //console.log('Notification enabled and POST request sent.');
@@ -156,6 +174,18 @@ const SecurityForm = () => {
     catch (error) {
         console.log(error.message)
     } 
+  };
+
+  const handleSubscriptionConfirmationChange = async (event) => {
+    const { checked } = event.target;
+    setSubscriptionConfirmation(checked);
+    if (checked) {
+      // Make a POST request when the checkbox is checked
+      const response = await axios.post('https://oz5x35a4ea.execute-api.us-east-1.amazonaws.com/test/add-filter-policy', { email: currentUserEmail });
+      console.log("This is response", response)
+    } else {
+      console.log('Subscription confirmation not accepted.');
+    }
   };
   
   return (
@@ -216,7 +246,11 @@ const SecurityForm = () => {
       <Box mt={4} textAlign="center">
         <FormControlLabel
           control={<Checkbox checked={notificationEnabled} onChange={handleNotificationChange} />}
-          label="Enable notification if you want others to invite you to their team"
+          label="Enable notifications!"
+        />
+        <FormControlLabel
+          control={<Checkbox checked={subscriptionConfirmation} onChange={handleSubscriptionConfirmationChange} />}
+          label="Check here if you have accepted the subscription confirmation in your email"
         />
       </Box>
       </Container>

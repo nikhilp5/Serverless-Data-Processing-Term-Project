@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
+import { Alert } from '@mui/material';
 import {
 	Table,
 	TableHead,
@@ -14,9 +14,10 @@ import {
 import { styled } from '@mui/system';
 import axios from 'axios';
 import { WebSocketContext } from '../WebSocketContext/WebSocketProvider';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import ChatButton from '../teamchat/ChatButton';
 
-const StyledButton = styled(Button)(({ theme, isready }) => ({
+const StyledButton = styled(Button)(({ isready }) => ({
 	color: '#fff',
 	background: isready === 'true' ? '#4caf50' : '#f44336',
 	'&:hover': {
@@ -24,7 +25,7 @@ const StyledButton = styled(Button)(({ theme, isready }) => ({
 	},
 }));
 
-const StatusBox = styled(Box)(({ theme, isready }) => ({
+const StatusBox = styled(Box)(({ isready }) => ({
 	color: isready === 'true' ? '#4caf50' : '#f44336',
 	padding: '6px 16px',
 	borderRadius: '4px',
@@ -45,13 +46,17 @@ const StartButton = styled(Button)(({ theme }) => ({
 }));
 
 const TeamMembers = () => {
-	const teamId = 'team-1689466532241';
-	const gameId = '033c70b0-22e2-11ee-898b-dfc6867500b6';
+	// const teamId = 'team-1689466532241';
+	const teamId = localStorage.getItem('teamId');
+
+	// const gameId = '033c70b0-22e2-11ee-898b-dfc6867500b6';
+	const gameId = localStorage.getItem('gameId');
 
 	const [teamData, setTeamData] = useState(null);
 	const [teamMembers, setTeamMembers] = useState([]);
 	const [teamReady, setTeamReady] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [showInviteAlert, setShowInviteAlert] = useState(false); // state for showing the alert
 
 	const sessionUserString = localStorage.getItem('currentUser');
 	const sessionUser = JSON.parse(sessionUserString);
@@ -63,10 +68,24 @@ const TeamMembers = () => {
 		(member) => member.userEmail === currentPlayerId
 	);
 
+	useEffect(() => {
+		const timer = setInterval(() => {
+			fetchTeamMembers();
+			checkTeamReady();
+		}, 3000);
+
+		if (message && message.action === 'FIRST_QUESTION') {
+			setIsLoading(false);
+		}
+		return () => {
+			clearInterval(timer);
+		};
+	}, [message]);
+
 	const fetchTeamMembers = async () => {
 		try {
 			const response = await axios.get(
-				'https://nc0jzt33ed.execute-api.us-east-1.amazonaws.com/test/teams?teamId=team-1689466532241'
+				`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team?teamId=${teamId}`
 			);
 			const data = response.data;
 			setTeamData(data);
@@ -79,7 +98,8 @@ const TeamMembers = () => {
 	const checkTeamReady = async () => {
 		try {
 			const response = await axios.post(
-				'https://heot861m04.execute-api.us-east-1.amazonaws.com/dev/isready',
+				'https://k0wesz1f4i.execute-api.us-east-1.amazonaws.com/dev/isready',
+				// 'https://heot861m04.execute-api.us-east-1.amazonaws.com/dev/isready',
 				{
 					teamId: teamId,
 				}
@@ -92,27 +112,6 @@ const TeamMembers = () => {
 	// console.log('checkTeamReady', checkTeamReady());
 
 	const { webSocket, message } = useContext(WebSocketContext);
-
-	useEffect(() => {
-		const timer = setInterval(() => {
-			fetchTeamMembers();
-			checkTeamReady();
-		}, 3000);
-
-		// if (message && message.action === 'GAME_STARTED') {
-		// 	// navigate('/Quiz');
-		// }
-		// if (message && message.action === 'FIRST_QUESTION') {
-		// 	navigate('/Quiz', { state: { message: message } });
-		// 	// navigate('/Quiz');
-		// }
-		if (message && message.action === 'FIRST_QUESTION') {
-			setIsLoading(false);
-		}
-		return () => {
-			clearInterval(timer);
-		};
-	}, [message]);
 
 	const handleReadyToggle = async (userEmail) => {
 		if (userEmail === currentPlayerId) {
@@ -131,7 +130,7 @@ const TeamMembers = () => {
 
 			try {
 				const response = await axios.post(
-					'https://uuy9y7vzyl.execute-api.us-east-1.amazonaws.com/dev/status',
+					'https://zaji3l4fn6.execute-api.us-east-1.amazonaws.com/dev/status',
 					{
 						teamId: teamData.teamId,
 						userEmail: userEmail,
@@ -155,6 +154,7 @@ const TeamMembers = () => {
 				gameId: gameId,
 			},
 		};
+		console.log('Startgame', request);
 		webSocket.send(JSON.stringify(request));
 	};
 
@@ -162,6 +162,34 @@ const TeamMembers = () => {
 		// Show a loading indicator or return null until teamMembers data is available
 		return <div>Loading...</div>;
 	}
+
+	const inviteTeam = async () => {
+		if (teamMembers.length <= 1) {
+			alert("You're the only one in your team. Cannot invite yourself!");
+			return;
+		}
+
+		const teamName = localStorage.getItem('teamName');
+		const gameName = localStorage.getItem('gameName');
+		let teamMembersFromStorage = JSON.parse(
+			localStorage.getItem('teamMembers')
+		);
+		try {
+			const response = await axios.post(
+				'https://k0wesz1f4i.execute-api.us-east-1.amazonaws.com/dev/game-invite',
+				{
+					teamName: teamName,
+					gameName: gameName,
+					teamMembers: teamMembers,
+				}
+			);
+			console.log('This is the response', response);
+			setShowInviteAlert(true); // Show the alert after successful request
+			setTimeout(() => setShowInviteAlert(false), 5000); // Hide the alert after 5 seconds
+		} catch (error) {
+			console.error('Error inviting team:', error);
+		}
+	};
 
 	return (
 		<div style={{ margin: '20px' }}>
@@ -177,7 +205,12 @@ const TeamMembers = () => {
 				<TableBody>
 					{teamMembers.map((member) => (
 						<TableRow key={member.userEmail}>
-							<TableCell>{member.userEmail}</TableCell>
+							<TableCell>
+								{member.userEmail}{' '}
+								{member.userEmail === currentPlayerId
+									? ' (You ⭐)'
+									: ''}
+							</TableCell>
 							<TableCell>{member.userRole}</TableCell>
 							<TableCell>
 								{member.userEmail === currentPlayerId ? (
@@ -221,6 +254,19 @@ const TeamMembers = () => {
 					'Start'
 				)}
 			</StartButton>
+			<div style={{ marginTop: '20px' }}>
+				<ChatButton />
+			</div>
+			<div style={{ marginTop: '20px' }}>
+				<Button variant='contained' onClick={inviteTeam}>
+					Invite Your Team
+				</Button>
+			</div>
+			{showInviteAlert && (
+				<Alert severity='success'>
+					Your team has been notified to join this game!
+				</Alert>
+			)}
 		</div>
 	);
 };

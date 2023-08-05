@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
 	setIsQuestionLoading,
 	setQuiz,
+	setResult,
 	updateQuiz,
 } from '../../redux/quizSlice';
 import { useNavigate } from 'react-router-dom';
@@ -18,7 +19,7 @@ export default ({ children }) => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 
-	const teamId = 'team-1689466532241';
+	const teamId = localStorage.getItem('teamId');
 
 	const handleMessage = useCallback(
 		(messageEvent) => {
@@ -35,10 +36,11 @@ export default ({ children }) => {
 
 			if (message && message.action === 'END_GAME') {
 				console.log('END_GAME.data', message.data.scores);
+				// console.log('message.data.result', message.data.result);
 				dispatch(setIsQuestionLoading(false));
 				const scores = message.data.scores;
-
 				dispatch(setScore(scores[teamId]));
+				dispatch(setResult(message.data.result));
 				navigate('/ScorePage');
 			}
 
@@ -60,12 +62,6 @@ export default ({ children }) => {
 	useEffect(() => {
 		const wsUrl = `${wsApi}?teamId=${teamId}`;
 		ws.current = new WebSocket(wsUrl);
-		// ws.current = new WebSocket(wsApi);
-
-		// ws.current.onopen = () => {
-		// 	setWebSocket(ws.current);
-		// 	console.log('Connected to websocket');
-		// };
 
 		ws.current.onopen = () => {
 			setWebSocket(ws.current);
