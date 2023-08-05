@@ -68,11 +68,22 @@ const TeamMembers = () => {
 		(member) => member.userEmail === currentPlayerId
 	);
 
+	useEffect(() => {
+		const timer = setInterval(() => {
+			fetchTeamMembers();
+			checkTeamReady();
+		}, 3000);
+
+		if (message && message.action === 'FIRST_QUESTION') {
+			setIsLoading(false);
+		}
+		return () => {
+			clearInterval(timer);
+		};
+	}, [message]);
+
 	const fetchTeamMembers = async () => {
 		try {
-			// const response = await axios.get(
-			// 	'https://nc0jzt33ed.execute-api.us-east-1.amazonaws.com/test/teams?teamId=team-1689466532241'
-			// );
 			const response = await axios.get(
 				`https://sq9k6vbyqf.execute-api.us-east-1.amazonaws.com/test/team?teamId=${teamId}`
 			);
@@ -102,27 +113,6 @@ const TeamMembers = () => {
 
 	const { webSocket, message } = useContext(WebSocketContext);
 
-	useEffect(() => {
-		const timer = setInterval(() => {
-			fetchTeamMembers();
-			checkTeamReady();
-		}, 3000);
-
-		// if (message && message.action === 'GAME_STARTED') {
-		// 	// navigate('/Quiz');
-		// }
-		// if (message && message.action === 'FIRST_QUESTION') {
-		// 	navigate('/Quiz', { state: { message: message } });
-		// 	// navigate('/Quiz');
-		// }
-		if (message && message.action === 'FIRST_QUESTION') {
-			setIsLoading(false);
-		}
-		return () => {
-			clearInterval(timer);
-		};
-	}, [message]);
-
 	const handleReadyToggle = async (userEmail) => {
 		if (userEmail === currentPlayerId) {
 			const memberIndex = teamMembers.findIndex(
@@ -141,7 +131,6 @@ const TeamMembers = () => {
 			try {
 				const response = await axios.post(
 					'https://zaji3l4fn6.execute-api.us-east-1.amazonaws.com/dev/status',
-					// 'https://uuy9y7vzyl.execute-api.us-east-1.amazonaws.com/dev/status',
 					{
 						teamId: teamData.teamId,
 						userEmail: userEmail,
@@ -185,9 +174,6 @@ const TeamMembers = () => {
 		let teamMembersFromStorage = JSON.parse(
 			localStorage.getItem('teamMembers')
 		);
-		console.log('This is team name', teamName);
-		console.log('Gameeeeeeeeeeeee', gameName);
-		console.log('Gameeeeeeeeeeeee', teamMembers);
 		try {
 			const response = await axios.post(
 				'https://k0wesz1f4i.execute-api.us-east-1.amazonaws.com/dev/game-invite',
