@@ -191,6 +191,7 @@ const GamesManagePage = () => {
           .post(url, data)
           .then((response) => {
             console.log("The message was successfully sent!", response);
+            alert('The New game avilability has been broadcasted to all users!');
           })
           .catch((error) => {
             console.error(

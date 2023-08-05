@@ -3,7 +3,6 @@ import {
 	Box,
 	Grid,
 	Typography,
-	TextField,
 	Button,
 	Card,
 	CardContent,
@@ -157,9 +156,12 @@ function TeamOperations() {
 		});
 	};
 
-	const handleJoinGame = (gameId) => {
+	const handleJoinGame = (gameId, gameName) => {
 		// Store the gameId in localStorage
 		localStorage.setItem('gameId', gameId);
+		localStorage.setItem('teamName', teamName);
+		localStorage.setItem('gameName', gameName);
+		localStorage.setItem('teamMembers', JSON.stringify(teamMembers));
 		// Navigate to the /TeamMembers route
 		navigate('/WaitLobby');
 	};
@@ -332,7 +334,7 @@ function TeamOperations() {
 										<Button
 											variant='contained'
 											onClick={() =>
-												handleJoinGame(game.gameID)
+												handleJoinGame(game.gameID, game.gameName)
 											}
 										>
 											Join Game
