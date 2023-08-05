@@ -263,7 +263,7 @@ function TeamOperations() {
 														color='error'
 														onClick={() =>
 															handleUpdate(
-																member.userId,
+																member.userEmail,
 																'kickUser'
 															)
 														}
