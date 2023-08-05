@@ -51,10 +51,10 @@ function TeamOperations() {
 
 	const fetchTeamStats = async () => {
 		try {
-			//const response = await axios.get(`https://jmflaholi8.execute-api.us-east-1.amazonaws.com/dev/getteamstats?teamId=${teamId}`);
-			const response = await axios.get(
-				'https://jmflaholi8.execute-api.us-east-1.amazonaws.com/dev/getteamstats?teamId=team-168946653224'
-			);
+			const response = await axios.get(`https://jmflaholi8.execute-api.us-east-1.amazonaws.com/dev/getteamstats?teamId=${teamId}`);
+			// const response = await axios.get(
+			// 	'https://jmflaholi8.execute-api.us-east-1.amazonaws.com/dev/getteamstats?teamId=team-168946653224'
+			// );
 			setTeamStats(response.data);
 			// Open the stats dialog
 			setStatsDialogOpen(true);
