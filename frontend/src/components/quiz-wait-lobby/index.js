@@ -165,6 +165,7 @@ const TeamMembers = () => {
 				gameId: gameId,
 			},
 		};
+		console.log('Startgame', request);
 		webSocket.send(JSON.stringify(request));
 	};
 
@@ -173,32 +174,36 @@ const TeamMembers = () => {
 		return <div>Loading...</div>;
 	}
 
-    const inviteTeam = async () => {
+	const inviteTeam = async () => {
 		if (teamMembers.length <= 1) {
-            alert("You're the only one in your team. Cannot invite yourself!");
-            return;
-        }
+			alert("You're the only one in your team. Cannot invite yourself!");
+			return;
+		}
 
 		const teamName = localStorage.getItem('teamName');
 		const gameName = localStorage.getItem('gameName');
-		let teamMembersFromStorage = JSON.parse(localStorage.getItem('teamMembers'));
-		console.log("This is team name", teamName)
-		console.log("Gameeeeeeeeeeeee", gameName)
-		console.log("Gameeeeeeeeeeeee", teamMembers)
-        try {
-            const response = await axios.post('https://k0wesz1f4i.execute-api.us-east-1.amazonaws.com/dev/game-invite', 
-			{
-				teamName: teamName,
-				gameName: gameName,
-				teamMembers: teamMembers
-			})
-			console.log("This is the response", response)
-            setShowInviteAlert(true); // Show the alert after successful request
-            setTimeout(() => setShowInviteAlert(false), 5000); // Hide the alert after 5 seconds
-        } catch (error) {
-            console.error('Error inviting team:', error);
-        }
-    };
+		let teamMembersFromStorage = JSON.parse(
+			localStorage.getItem('teamMembers')
+		);
+		console.log('This is team name', teamName);
+		console.log('Gameeeeeeeeeeeee', gameName);
+		console.log('Gameeeeeeeeeeeee', teamMembers);
+		try {
+			const response = await axios.post(
+				'https://k0wesz1f4i.execute-api.us-east-1.amazonaws.com/dev/game-invite',
+				{
+					teamName: teamName,
+					gameName: gameName,
+					teamMembers: teamMembers,
+				}
+			);
+			console.log('This is the response', response);
+			setShowInviteAlert(true); // Show the alert after successful request
+			setTimeout(() => setShowInviteAlert(false), 5000); // Hide the alert after 5 seconds
+		} catch (error) {
+			console.error('Error inviting team:', error);
+		}
+	};
 
 	return (
 		<div style={{ margin: '20px' }}>
@@ -267,9 +272,15 @@ const TeamMembers = () => {
 				<ChatButton />
 			</div>
 			<div style={{ marginTop: '20px' }}>
-                <Button variant='contained' onClick={inviteTeam}>Invite Your Team</Button>
-            </div>
-            {showInviteAlert && <Alert severity="success">Your team has been notified to join this game!</Alert>}
+				<Button variant='contained' onClick={inviteTeam}>
+					Invite Your Team
+				</Button>
+			</div>
+			{showInviteAlert && (
+				<Alert severity='success'>
+					Your team has been notified to join this game!
+				</Alert>
+			)}
 		</div>
 	);
 };

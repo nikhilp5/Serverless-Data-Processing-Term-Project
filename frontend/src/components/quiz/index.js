@@ -34,7 +34,7 @@ const Quiz = (props) => {
 	const totalQuestions = quiz.totalQuestions;
 	const nextResponder = quiz.nextResponder;
 
-	console.log('currentQuestion', currentQuestion);
+	// console.log('currentQuestion', currentQuestion);
 	const [isUserTurn, setIsUserTurn] = useState(false);
 	const [selectedOption, setSelectedOption] = useState(null);
 	const [score, setScore] = useState(0);
@@ -43,17 +43,15 @@ const Quiz = (props) => {
 
 	const { webSocket, message } = useContext(WebSocketContext);
 
-	// console.log( 'Quiz', quiz );
-
 	// console.log('selectedOption', selectedOption);
 	useEffect(() => {
 		if (nextResponder === currentUserEmail) {
-			console.log('here', nextResponder);
+			// console.log('here', nextResponder);
 			setIsUserTurn(true);
 		} else {
 			setIsUserTurn(false);
 		}
-		console.log('nextResponder:', nextResponder, isUserTurn);
+		// console.log('nextResponder:', nextResponder, isUserTurn);
 	}, [nextResponder]);
 	const handleOptionChange = (option) => {
 		setSelectedOption(option);
@@ -71,9 +69,11 @@ const Quiz = (props) => {
 				submittedAnswer: selectedOption,
 			},
 		};
+		console.log('NEXT_QUESTION', request);
+
 		webSocket.send(JSON.stringify(request));
 	};
-	console.log('quiz.isQuestionLoading', quiz.isQuestionLoading);
+	// console.log('quiz.isQuestionLoading', quiz.isQuestionLoading);
 
 	function shuffleArray(array) {
 		for (let i = array.length - 1; i > 0; i--) {
