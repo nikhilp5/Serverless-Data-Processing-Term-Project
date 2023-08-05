@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
 	setIsQuestionLoading,
 	setQuiz,
+	setResult,
 	updateQuiz,
 } from '../../redux/quizSlice';
 import { useNavigate } from 'react-router-dom';
@@ -35,10 +36,11 @@ export default ({ children }) => {
 
 			if (message && message.action === 'END_GAME') {
 				console.log('END_GAME.data', message.data.scores);
+				// console.log('message.data.result', message.data.result);
 				dispatch(setIsQuestionLoading(false));
 				const scores = message.data.scores;
-
 				dispatch(setScore(scores[teamId]));
+				dispatch(setResult(message.data.result));
 				navigate('/ScorePage');
 			}
 

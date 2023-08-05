@@ -13,20 +13,26 @@ import axios from 'axios';
 
 const ScorePage = () => {
 	const score = useSelector((state) => state.score.score);
+	const result = useSelector((state) => state.quiz.result);
 	const navigate = useNavigate();
-	
-	const handleButtonClick = async () => { // make the function async
+	console.log('score.result', result);
+
+	const handleButtonClick = async () => {
+		// make the function async
 		// Add the POST request
-		const url = "https://oz5x35a4ea.execute-api.us-east-1.amazonaws.com/test/publish";
+		const url =
+			'https://oz5x35a4ea.execute-api.us-east-1.amazonaws.com/test/publish';
 		const data = {
-			target: "all",
+			target: 'all',
 			message: `Hello players, the leaderboard ranks have changed. Please view the leaderboard on your profile page. `,
 		};
 
 		try {
 			const response = await axios.post(url, data);
 			console.log(response.data); // log the response to the console
-			alert("The leaderboard ranks have changed. View your inbox for notifications!")
+			alert(
+				'The leaderboard ranks have changed. View your inbox for notifications!'
+			);
 		} catch (error) {
 			console.error('Error sending POST request:', error); // log any error
 		}
@@ -57,9 +63,22 @@ const ScorePage = () => {
 						elevation={3}
 					>
 						<CardContent>
-							<Typography variant='h4' sx={{ color: '#0d47a1' }}>
+							{result ? (
+								<Typography
+									variant='h3'
+									sx={{ color: 'green' }}
+								>
+									Match Won
+								</Typography>
+							) : (
+								<Typography variant='h3' sx={{ color: 'red' }}>
+									Match Loss
+								</Typography>
+							)}
+							<Typography variant='h5' sx={{ color: '#0d47a1' }}>
 								Team Score: {score.teamScore}
 							</Typography>
+
 							{score.members &&
 								Object.entries(score.members).map(
 									([email, scores]) => (
