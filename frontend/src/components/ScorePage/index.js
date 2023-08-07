@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	Typography,
 	Box,
@@ -15,7 +15,15 @@ const ScorePage = () => {
 	const score = useSelector((state) => state.score.score);
 	const result = useSelector((state) => state.quiz.result);
 	const navigate = useNavigate();
+	const [teamName, setTeamName] = useState("");
+	const [gameName, setGameName] = useState("");
 	console.log('score.result', result);
+
+	useEffect(() => {
+		// Fetch teamName and gameName from localStorage
+		setTeamName(localStorage.getItem('teamName'));
+		setGameName(localStorage.getItem('gameName'));
+	}, []);
 
 	const handleButtonClick = async () => {
 		// make the function async
@@ -35,6 +43,22 @@ const ScorePage = () => {
 			);
 		} catch (error) {
 			console.error('Error sending POST request:', error); // log any error
+		}
+
+		// Post to achievement API regardless of the game result
+		try {
+			const achievementUrl = 'https://k0wesz1f4i.execute-api.us-east-1.amazonaws.com/dev/achievement';
+			const achievementData = {
+			  teamName,
+			  gameName,
+			  gameResult: result ? 'won' : 'loss',
+			};
+		
+			const achievementResponse = await axios.post(achievementUrl, achievementData);
+			console.log(achievementResponse.data);
+			alert('Please view your achievements in your inbox.');
+		  } catch (error) {
+			console.error('Error sending POST request to achievement API:', error);
 		}
 
 		// Navigate after the POST request

@@ -68,6 +68,8 @@ const TeamMembers = () => {
 		(member) => member.userEmail === currentPlayerId
 	);
 
+	const { webSocket, message } = useContext(WebSocketContext);
+
 	useEffect(() => {
 		const timer = setInterval(() => {
 			fetchTeamMembers();
@@ -110,8 +112,6 @@ const TeamMembers = () => {
 		}
 	};
 	// console.log('checkTeamReady', checkTeamReady());
-
-	const { webSocket, message } = useContext(WebSocketContext);
 
 	const handleReadyToggle = async (userEmail) => {
 		if (userEmail === currentPlayerId) {
